@@ -1,0 +1,84 @@
+SYSTÈME EXPERT :
+Vieille manière de coder de l'AI, encore utilisée de nos jours (jeux vidéos)
+- Branches conditionnelles
+
+Aujourd'hui, le ML: Machine Learning (Apprentissage Machine)
+Réseau de neurones, etc... des algos qui sont là pour résoudre des problèmes trop complexes
+pour l'humain (trop de variables).
+
+ALGOS :
++ Brute Force -> n!
+on prend toutes les combinaisons possibles et on garde le meilleur (on essaie toutes les possibilités).
+
+Google Map :
+Un algo qui retourne un excellent chemin, mais pas nécessairement le meilleur chemin.
+Beaucoup d'algos font ça : une bonne solution accessible dans un temps de calcul raisonnable mais pas la meilleure.
+
+Les problèmes de AI modernes dans un contexte informatique reviennent toujours à la notion d'optimisation.
+TROUVER UNE SOLUTION OPTIMALE À UN PROBLÈME DONNÉ. Les AI ne font qu'une seule chose.
+
+Des librairies matures existent pour l'AI (Surtout en Python et aussi en C++).
+
+La difficulté de travailler avec l'AI : Trouver le bon algorithme lié au problème qu'on tente de résoudre.
+Suite à ça, 2 phases importantes :
+Phase I. Apprentissage.
+Phase II. Déploiement. On va chez le client et on déploie la solution dans son écosystème.
+
+
+Des algos de convergence (itératif):
+L'algo converge vers une bonne solution.
+Algos évolutifs : sous-branche des algos de convergence (immense sujets). Exemple classique : Algo colonie de fourmi.
+
+Les algos dans le cadre du DEC : des algos qui nécessitent peu de math.
+
+
+Espaces de travail :
+1. Espace du problème. (On expose le problème)
+2. Espace de la solution. (On cherche la solution)
+
+Exemple du nombre aléatoire en -1000 et 1000 (Espace du problème)
+On cherche une réponse qui est dans le même espace que l'espace du problème (-1000 et 1000)
+Dans ce cas-là, l'espace de solution est le même que l'espace du problème.
+
+Problème du nuage de points avec les notes d'étudiant (régression linéaire, ax+b)
+Espace de solution: je cherche a et b
+
+Réjection: distance entre un point et une droite.
+Travail d'un informaticien : pas nécessairement faire les maths, mais les IMPLÉMENTER.
+
+Ex : le problème classique du commmis-voyageur.
+
+
+// PROJET 1 :
+Résolution de problème :
+- On commence par une réduction de complexité
+- Ne pas essayer de trouver les pointes dans un problème Cercle/Étoile
+
+KNN > K (K like Konstant) Nearest Neighborhood
+KNN -> mettre en deux dimensions les données et vérifier l'identité des voisins avec un calcul de distance sur le graphique en deux dimensions
+
+Un des gros problèmes de travailler dans des espaces à n dimensions (propre à l'algo KNN entres autres):
+Les axes doivent être COMPARABLES pour pouvoir faire des calculs de distance efficaces.
+Solution : Normaliser les valeurs (les transformer dans un pourcentage 0 à 1 par exemple)
+
+Rendre le périmètre au carré par exemple.
+Ensuite, possible de faire un ratio A/périmètre au carré. C'est ce qu'on appelle un indice de complexité/indice de rondeur.
+
+On a des images en entrée, on veut réduire la complexité du problème.
+On cherche des métriques pour décrire les formes (périmètre, aire, nombre de coins (pas s'y concentrer, trop difficile à gérer)).
+OBLIGATION D'UTILISER TROIS DIMENSIONS POUR DES RAISONS PÉDAGOGIQUES
+On prend les images, on calcule nos trois métriques pour chaque image et on détermine la catégorie de l'image.
+
+Le défi aujourd'hui (19 avril):
+1. Réduction de complexité, extraire les informations d'une image (trois différentes métriques) qu'on normalisera entre 0 et 1.
+2. La qualité logicielle compte, le plus important : les trois métriques et la structure du code. Le KNN doit être générique. Il doit prendre N dimension.
+Une classe qui gère le KNN. On prend notre classe pour un KNN à 28 dimensions, ça marche. À 1 dimension, ça marche. Fonctionne avec numpy.
+
+Le troisième paramètre : Indice de complexité, Nombre de trous, Nombre de coins, etc...
+
+// Pythagore - Calcul de distance
+d = SQRT((P1x - P2x)^2 + (P1y - P2y)^2)
+
+Une seule dimension : SQRT((P1x - P2x)^2) ou encore |P1x - P2x| (valeur absolue)
+
+Minkowski -> Généralisation des distances de Pythagore à n dimension
