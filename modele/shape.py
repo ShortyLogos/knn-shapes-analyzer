@@ -43,7 +43,7 @@ def indice_complex(image):
 
 # nombre de sommet
 def sum_sommets(image):
-    centre = centroid(image)
+    centre = centroid(image).astype(image.dtype)
     perimetre = tableau_perimeter(image)
     c, r = image_coordinates(image)
     match = perimetre == 1
