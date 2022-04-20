@@ -1,4 +1,5 @@
-from shape-ai.py import *
+import numpy as np
+from shape_ai.py import * 
 
 # 1)
 def create_image(size):
