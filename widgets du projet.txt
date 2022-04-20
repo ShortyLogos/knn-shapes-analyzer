@@ -1,0 +1,9 @@
+Tab Widget pour les onglets
+QComboBox -> Populer le QComboBox avec des lignes
+fonction available_dataset() de la base de données fournie
+
+Dans le graphique 3D -> Donner le nom des descripteurs de formes sur les axes
+
+
+Généricité de notre classe KNN :
+Peut gérer n'importe quel problème, n'importe quelle dimension

@@ -1,0 +1,3 @@
+class KNN() {
+    pass
+}
