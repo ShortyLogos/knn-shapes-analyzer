@@ -42,7 +42,7 @@ from PySide6.QtCore import Signal, Slot
 from PySide6.QtWidgets import  (QApplication, QWidget, QListView, QTreeView,  
                                 QGroupBox, QLabel, QCheckBox, QPlainTextEdit,
                                 QGridLayout, QHBoxLayout, QVBoxLayout, QSplitter, QSizePolicy,
-                                QMessageBox)
+                                QMessageBox, QTabWidget, QMainWindow)
 from PySide6.QtGui import  (QImage, QPixmap, QIcon, QPainter, QFont, QPen, QBrush, QColor, 
                             QStandardItemModel, QStandardItem,
                             QClipboard)
@@ -563,17 +563,66 @@ class KlustRDataSourceViewWidget(QWidget):
             self.image_info_widget.update_info(self.image_model.item_from_index(selected.indexes()[0]))
 
 
+class KlustRDataAnalyzeViewWidget(QWidget):
+    def __init__(self, klustr_dao, parent=None):
+        super().__init__(parent)
+        self.klustr_dao = klustr_dao
+        if self.klustr_dao.is_available:
+            self._setup_models()
+            self._setup_gui()
+        else:
+            self._setup_invalid_gui()
+
+    def _setup_models(self):
+        # Insérer le contenus dans les listes à partir du dao
+        # 2 Dropdown
+        pass
+
+    def _setup_invalid_gui(self):
+        not_available = QLabel('Data access unavailable')
+        not_available.alignment = Qt.AlignCenter
+        not_available.enabled = False
+        layout = QGridLayout(self)
+        layout.add_widget(not_available)
+        QMessageBox.warning(self, 'Data access unavailable', 'Data access unavailable.')
+
+    def _setup_gui(self):
+        # Placer les layout qui contiennent le data
+        # Dropdown c'est dataset[0] dataset[1] dans la ligne 109
+        # En dessous du dropdown, les infos sont dans la boucle à la ligne 109
+
+        # Dropdown 2 c'est image_info[2] ou image_info[3] comme ligne 241, 248-249 pour avoir le tableau de image_infos 
+        # Pour imageView, utiliser les lignes 297, 298, 299, 373
+        # Bouton classify appel la fonction dans le modèle et lui passe l'objet image correspondant au label sélectionné
+        # TextView qui affiche le return de leur fonction
+        
+        # 2x rows horizontales composées d'un label et d'un scrollbar
+        
+        # Bouton About qui ouvre un QMessageBox.about
+        # Inclus un gros text 
+        pass
 
 
-
+class KlustrMain(QWidget):  
+    def __init__(self, klustr_dao, parent=None):
+        super().__init__(parent)
+        
+        # Initialize tab screen
+        self.tabs = QTabWidget()
+        self.tab1 = KlustRDataSourceViewWidget(klustr_dao)
+        self.tab2 = KlustRDataAnalyzeViewWidget(klustr_dao)
+        
+        # Add tabs
+        self.tabs.add_tab(self.tab1,"Tab 1")
+        self.tabs.add_tab(self.tab2,"Tab 2")
+        
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-
     credential = PostgreSQLCredential(password='ASDasd123')
     klustr_dao = PostgreSQLKlustRDAO(credential)
-    source_data_widget = KlustRDataSourceViewWidget(klustr_dao)
-    source_data_widget.window_title = 'Kluster Widget Demo'
-    source_data_widget.show()
+    source_data_widget = KlustrMain(klustr_dao)
+    source_data_widget.window_title = 'Kluster App'
+    source_data_widget.tabs.show()
 
     sys.exit(app.exec_())    
