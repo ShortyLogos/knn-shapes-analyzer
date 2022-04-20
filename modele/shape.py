@@ -43,15 +43,13 @@ def indice_complex(image):
 
 # nombre de sommet
 def sum_sommets(image):
-    centre = centroid(image)
+    centre = centroid(image).astype(image.dtype)
     perimetre = tableau_perimeter(image)
     c, r = image_coordinates(image)
-    match = image == perimetre
+    match = perimetre == 1
     match_col = c[match]
     match_row = r[match]
-    temp = np.empty((match_col.shape[0],match_row.shape[0]))
-    #temp[:] = (match_col, match_row)
-    print(temp)
+    perimetres_coordonnees = np.stack((match_col, match_row), axis=1)
 
 # distance entre deux points
 def distance_points(p1,p2):
