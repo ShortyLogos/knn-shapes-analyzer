@@ -37,7 +37,6 @@ class ShapeAnalyzer:
     # indice de complexité
     def complexity_index(self, image):
         return self.area(image) / self.perimeter(image) ** 2
-
     ##################################
 
     # calcul du centroïde
