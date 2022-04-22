@@ -39,10 +39,10 @@ from klustr_utils import qimage_argb32_from_png_decoding
 from PySide6 import QtCore, QtGui, QtWidgets
 from PySide6.QtCore import Qt, QSize
 from PySide6.QtCore import Signal, Slot
-from PySide6.QtWidgets import  (QApplication, QWidget, QListView, QTreeView,  
-                                QGroupBox, QLabel, QCheckBox, QPlainTextEdit,
-                                QGridLayout, QHBoxLayout, QVBoxLayout, QSplitter, QSizePolicy,
-                                QMessageBox, QTabWidget, QMainWindow)
+from PySide6.QtWidgets import (QApplication, QWidget, QListView, QTreeView,
+                               QGroupBox, QLabel, QCheckBox, QPlainTextEdit,
+                               QGridLayout, QHBoxLayout, QVBoxLayout, QSplitter, QSizePolicy,
+                               QMessageBox, QTabWidget, QMainWindow, QPushButton)
 from PySide6.QtGui import  (QImage, QPixmap, QIcon, QPainter, QFont, QPen, QBrush, QColor, 
                             QStandardItemModel, QStandardItem,
                             QClipboard)
@@ -587,6 +587,40 @@ class KlustRDataAnalyzeViewWidget(QWidget):
         QMessageBox.warning(self, 'Data access unavailable', 'Data access unavailable.')
 
     def _setup_gui(self):
+
+
+
+        #setup 4 widgets data
+        dataset_widget = QWidget()
+        single_test = QWidget()
+        knn_parameters = QWidget()
+        bouton_about = QPushButton("About")
+
+        #layouting data
+        view_data_widget = QWidget()
+        view_data_layout = QVBoxLayout(view_data_widget)
+        view_data_layout.add_widget(QLabel("Dataset"))
+        view_data_layout.add_widget(dataset_widget)
+        view_data_layout.add_widget(QLabel("Single Test"))
+        view_data_layout.add_widget(single_test)
+        view_data_layout.add_widget(QLabel("Knn Parameters"))
+        view_data_layout.add_widget(knn_parameters)
+        view_data_layout.add_widget(bouton_about)
+
+
+        self.graphique_widget = QWidget()
+
+        #Layouting graphique
+        view_graphique_widget = QWidget()
+        view_graphique_layout = QVBoxLayout(view_graphique_widget)
+        view_graphique_layout.add_widget(QLabel("KLUSTR KNN CLASSIFICATION"))
+        view_graphique_layout.add_widget(self.graphique_widget)
+
+
+        #main layouting
+        layout = QHBoxLayout(self)
+        layout.add_widget(view_data_widget)
+        layout.add_widget(view_graphique_widget)
         # Placer les layout qui contiennent le data
         # Dropdown c'est dataset[0] dataset[1] dans la ligne 109
         # En dessous du dropdown, les infos sont dans la boucle à la ligne 109
