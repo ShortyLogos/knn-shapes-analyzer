@@ -42,7 +42,7 @@ from PySide6.QtCore import Signal, Slot
 from PySide6.QtWidgets import (QApplication, QWidget, QListView, QTreeView,
                                QGroupBox, QLabel, QCheckBox, QPlainTextEdit,
                                QGridLayout, QHBoxLayout, QVBoxLayout, QSplitter, QSizePolicy,
-                               QMessageBox, QTabWidget, QMainWindow, QPushButton)
+                               QMessageBox, QTabWidget, QMainWindow, QPushButton, QComboBox, QScrollBar)
 from PySide6.QtGui import  (QImage, QPixmap, QIcon, QPainter, QFont, QPen, QBrush, QColor, 
                             QStandardItemModel, QStandardItem,
                             QClipboard)
@@ -563,10 +563,21 @@ class KlustRDataSourceViewWidget(QWidget):
             self.image_info_widget.update_info(self.image_model.item_from_index(selected.indexes()[0]))
 
 
+class KlustRDataAnalyzeModel(QWidget):
+    def __init__(self):
+        super().__init__()
+
+    def update(self, dictionnaire):
+        #Doit faire un for each et créé un label avec la clé du dictionnaire et un autre avec sa valeur
+        #Référence èa la classe ligne 88
+        pass
+
 class KlustRDataAnalyzeViewWidget(QWidget):
     def __init__(self, klustr_dao, parent=None):
         super().__init__(parent)
         self.klustr_dao = klustr_dao
+        self.chosen_dataset = None
+        self.chosen_image = None
         if self.klustr_dao.is_available:
             self._setup_models()
             self._setup_gui()
@@ -586,41 +597,129 @@ class KlustRDataAnalyzeViewWidget(QWidget):
         layout.add_widget(not_available)
         QMessageBox.warning(self, 'Data access unavailable', 'Data access unavailable.')
 
+    @Slot()
+    def __show_dialog(self):
+        msgBox = QMessageBox()
+        msgBox.text=("Jean Marc The Terminator")
+        msgBox.exec()
+
+    @Slot()
+    def __selection_img(self, choix):
+        self.chosen_image = self.single_test_combo_box.item_text(choix)
+        print("current image", self.chosen_image)
+
+    @Slot()
+    def __classify(self):
+        if self.chosen_image is None:
+            text = "Not Classified"
+        else:
+            text = self.chosen_image
+        self.classify_result.text = text
+
     def _setup_gui(self):
-
-
-
         #setup 4 widgets data
         dataset_widget = QWidget()
-        single_test = QWidget()
-        knn_parameters = QWidget()
+        dataset_layout = QVBoxLayout(dataset_widget)
+        dataset_layout.add_widget(QLabel("Dataset"))
+        self.dataset_combo_box = QComboBox()
+        self.dataset_combo_box.add_items(["dataset1", "dataset2", "dataset3"])
+        self.dataset_combo_box.currentIndexChanged.connect(self.__selection_dataset)
+        dataset_layout.add_widget(self.dataset_combo_box)
+        dataset_sub_widget = QWidget()
+        dataset_sub_layout = QHBoxLayout(dataset_sub_widget)
+        ###################
+        dataset_info_widget = QWidget()
+        dataset_info_layout = QVBoxLayout(dataset_info_widget)
+        dataset_info_layout.add_widget(QLabel("Included in dataset"))
+        self.inclusion_model = KlustRDataAnalyzeModel()
+        dataset_info_layout.add_widget(self.inclusion_model)
+        ###################
+        dataset_transformation_widget = QWidget()
+        dataset_transformation_layout = QVBoxLayout(dataset_transformation_widget)
+        dataset_transformation_layout.add_widget(QLabel("Transformation"))
+        self.transformation_model = KlustRDataAnalyzeModel()
+        dataset_transformation_layout.add_widget(self.transformation_model)
+        ####################
+
+
+        dataset_sub_layout.add_widget(dataset_info_widget)
+        dataset_sub_layout.add_widget(dataset_transformation_widget)
+        dataset_layout.add_widget(dataset_sub_widget)
+
+        single_test_widget = QWidget()
+        single_test_layout = QVBoxLayout(single_test_widget)
+        single_test_layout.add_widget(QLabel("Single Test"))
+        self.single_test_combo_box = QComboBox()
+        self.single_test_combo_box.add_items(["item1", "item2", "item3"])
+        self.single_test_combo_box.currentIndexChanged.connect(self.__selection_img)
+        single_test_layout.add_widget(self.single_test_combo_box)
+        #self.image_container = .....
+        #single_test_layout.add_widget(self.image_container)
+        bouton_classify = QPushButton("Classify")
+        bouton_classify.clicked.connect(self.__classify)
+        single_test_layout.add_widget(bouton_classify)
+        self.classify_result = QLabel("Not Classified")
+        self.classify_result.alignment = Qt.AlignCenter
+        single_test_layout.add_widget(self.classify_result)
+
+        knn_parameters_widget = QWidget()
+        knn_parameters_layout = QVBoxLayout(knn_parameters_widget)
+        knn_parameters_layout.add_widget(QLabel("Knn Parameters"))
+
+        k_widget = QWidget()
+        k_layout = QHBoxLayout(k_widget)
+        self.__k_label = QLabel("K = 3")
+        k_layout.add_widget(self.__k_label)
+        self.__k_scrollbar = QScrollBar()
+        self.__k_scrollbar.orientation = Qt.Horizontal
+        k_layout.add_widget(self.__k_scrollbar)
+
+        dist_widget = QWidget()
+        dist_layout = QHBoxLayout(dist_widget)
+        self.__dist_label = QLabel("Max dist = 0.30")
+        dist_layout.add_widget(self.__dist_label)
+        self.__dist_scrollbar = QScrollBar()
+        self.__dist_scrollbar.orientation = Qt.Horizontal
+        dist_layout.add_widget(self.__dist_scrollbar)
+
+        knn_parameters_layout.add_widget(k_widget)
+        knn_parameters_layout.add_widget(dist_widget)
+
+
         bouton_about = QPushButton("About")
+        bouton_about.clicked.connect(self.__show_dialog)
+
 
         #layouting data
         view_data_widget = QWidget()
         view_data_layout = QVBoxLayout(view_data_widget)
-        view_data_layout.add_widget(QLabel("Dataset"))
         view_data_layout.add_widget(dataset_widget)
-        view_data_layout.add_widget(QLabel("Single Test"))
-        view_data_layout.add_widget(single_test)
-        view_data_layout.add_widget(QLabel("Knn Parameters"))
-        view_data_layout.add_widget(knn_parameters)
+        view_data_layout.add_widget(single_test_widget)
+        view_data_layout.add_widget(knn_parameters_widget)
         view_data_layout.add_widget(bouton_about)
 
 
-        self.graphique_widget = QWidget()
 
-        #Layouting graphique
-        view_graphique_widget = QWidget()
-        view_graphique_layout = QVBoxLayout(view_graphique_widget)
-        view_graphique_layout.add_widget(QLabel("KLUSTR KNN CLASSIFICATION"))
-        view_graphique_layout.add_widget(self.graphique_widget)
+
+
+
+        #setup graphic widgets
+        self.graphic_widget = QWidget()
+
+
+        #Layouting graphic
+        view_graphic_widget = QWidget()
+        view_graphic_layout = QVBoxLayout(view_graphic_widget)
+        graphic_title = QLabel("KLUSTR KNN CLASSIFICATION")
+        graphic_title.alignment = Qt.AlignCenter
+        view_graphic_layout.add_widget(graphic_title)
+        view_graphic_layout.add_widget(self.graphic_widget)
 
 
         #main layouting
         layout = QHBoxLayout(self)
         layout.add_widget(view_data_widget)
-        layout.add_widget(view_graphique_widget)
+        layout.add_widget(view_graphic_widget)
         # Placer les layout qui contiennent le data
         # Dropdown c'est dataset[0] dataset[1] dans la ligne 109
         # En dessous du dropdown, les infos sont dans la boucle à la ligne 109
@@ -634,7 +733,16 @@ class KlustRDataAnalyzeViewWidget(QWidget):
         
         # Bouton About qui ouvre un QMessageBox.about
         # Inclus un gros text 
-        pass
+
+    @Slot()
+    def __selection_dataset(self,choix):
+        self.chosen_dataset = self.dataset_combo_box.item_text(choix)
+        inclusion_infos = {}
+        transformation_infos = {}
+        self.inclusion_model.update(inclusion_infos)
+        self.transformation_model.update(transformation_infos)
+        #self.single_test_combo_box.update()
+        print("current dataset", self.chosen_dataset)
 
 
 class KlustrMain(QWidget):  
