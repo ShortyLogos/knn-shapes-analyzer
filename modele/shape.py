@@ -59,13 +59,13 @@ def indice_complex(image):
 
 
 # nombre de sommet
-def sum_sommets(image):
+def sum_sommets(image, buffer):
     centre = centroid(image).astype(image.dtype)
     perimetres_coordonnees = perimetre_coordinates(image)
     distances = tableau_distance_points(centre, perimetres_coordonnees)
     rayon = np.max(distances)
-    condition_sommet = (distances[:] == rayon).astype(int)
-    return np.sum(condition_sommet)
+    condition_sommet = distances[np.where((rayon - buffer <= distances)&(distances <= rayon + buffer))]
+    return np.size(condition_sommet)
 
 
 
@@ -88,4 +88,4 @@ def draw_rectangle(image, top_left, bottom_right):
 if __name__ == '__main__':
     img_test = create_image((10, 10))
     draw_rectangle(img_test, (2, 2), (7, 7))
-    sum_sommets(img_test)
+    sum_sommets(img_test, 0.2)
