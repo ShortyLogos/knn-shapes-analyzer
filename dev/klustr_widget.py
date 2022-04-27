@@ -42,7 +42,7 @@ from PySide6.QtCore import Signal, Slot
 from PySide6.QtWidgets import (QApplication, QWidget, QListView, QTreeView,
                                QGroupBox, QLabel, QCheckBox, QPlainTextEdit,
                                QGridLayout, QHBoxLayout, QVBoxLayout, QSplitter, QSizePolicy,
-                               QMessageBox, QTabWidget, QMainWindow, QPushButton, QComboBox, QScrollBar)
+                               QMessageBox, QTabWidget, QMainWindow, QPushButton, QComboBox, QScrollBar, QFormLayout)
 from PySide6.QtGui import  (QImage, QPixmap, QIcon, QPainter, QFont, QPen, QBrush, QColor, 
                             QStandardItemModel, QStandardItem,
                             QClipboard)
@@ -563,14 +563,62 @@ class KlustRDataSourceViewWidget(QWidget):
             self.image_info_widget.update_info(self.image_model.item_from_index(selected.indexes()[0]))
 
 
-class KlustRDataAnalyzeModel(QWidget):
+class KlustRDatasetAnalyzeModel(QWidget):
     def __init__(self):
         super().__init__()
+        self.general_widget = QGroupBox("Dataset")
+        general_layout = QVBoxLayout(self.general_widget)
 
-    def update(self, dictionnaire):
-        #Doit faire un for each et créé un label avec la clé du dictionnaire et un autre avec sa valeur
-        #Référence èa la classe ligne 88
-        pass
+        self.dataset_combo_box = QComboBox()
+        self.dataset_combo_box.currentIndexChanged.connect(self.__selection_dataset)
+        general_layout.add_widget(self.dataset_combo_box)
+
+        infos_widget = QWidget()
+        infos_layout = QHBoxLayout(infos_widget)
+
+        inclusion_group = QGroupBox('Included in dataset')
+        inclusion_layout = QVBoxLayout(inclusion_group)
+        inclusion_form = QFormLayout()
+        self.category_count = QLabel('0')
+        self.training_image_count = QLabel('0')
+        self.test_image_count = QLabel('0')
+        self.total_image_count = QLabel('0')
+        inclusion_form.add_row('Category count:', self.category_count)
+        inclusion_form.add_row('Training image count:', self.training_image_count)
+        inclusion_form.add_row('Test image count:', self.test_image_count)
+        inclusion_form.add_row('Total image count:', self.total_image_count)
+        inclusion_layout.add_layout(inclusion_form)
+        infos_layout.add_widget(inclusion_group)
+
+        transformation_group = QGroupBox('Transformation')
+        transformation_layout = QVBoxLayout(transformation_group)
+        transformation_form = QFormLayout()
+        self.translated = QLabel('False')
+        self.rotated = QLabel('False')
+        self.scaled = QLabel('False')
+        transformation_form.add_row('Translated:', self.translated)
+        transformation_form.add_row('Rotated:', self.rotated)
+        transformation_form.add_row('Scaled:', self.scaled)
+        transformation_layout.add_layout(transformation_form)
+        infos_layout.add_widget(transformation_group)
+
+        general_layout.add_widget(infos_widget)
+
+    def update(self, klustr_dao):
+        for dataset in klustr_dao.available_datasets:
+            self.dataset_combo_box.add_item(dataset[1], dataset)
+
+    @Slot()
+    def __selection_dataset(self,choix):
+        chosen_dataset = self.dataset_combo_box.item_data(choix)
+        self.category_count.text = (str(chosen_dataset[5]))
+        self.training_image_count.text = str(chosen_dataset[6])
+        self.test_image_count.text = str(chosen_dataset[7])
+        self.total_image_count.text = str(chosen_dataset[8])
+        self.translated.text = str(chosen_dataset[2])
+        self.rotated.text = str(chosen_dataset[3])
+        self.scaled.text = str(chosen_dataset[4])
+        #Return chosen_dataset au parent          
 
 class KlustRDataAnalyzeViewWidget(QWidget):
     def __init__(self, klustr_dao, parent=None):
@@ -579,15 +627,14 @@ class KlustRDataAnalyzeViewWidget(QWidget):
         self.chosen_dataset = None
         self.chosen_image = None
         if self.klustr_dao.is_available:
-            self._setup_models()
             self._setup_gui()
+            self._setup_models()
         else:
             self._setup_invalid_gui()
 
     def _setup_models(self):
-        # Insérer le contenus dans les listes à partir du dao
-        # 2 Dropdown
-        pass
+        # Insérer le contenus dans les Dropdown à partir du dao
+        self.dataset_widget.update(self.klustr_dao)
 
     def _setup_invalid_gui(self):
         not_available = QLabel('Data access unavailable')
@@ -618,52 +665,32 @@ class KlustRDataAnalyzeViewWidget(QWidget):
 
     def _setup_gui(self):
         #setup 4 widgets data
-        dataset_widget = QWidget()
-        dataset_layout = QVBoxLayout(dataset_widget)
-        dataset_layout.add_widget(QLabel("Dataset"))
-        self.dataset_combo_box = QComboBox()
-        self.dataset_combo_box.add_items(["dataset1", "dataset2", "dataset3"])
-        self.dataset_combo_box.currentIndexChanged.connect(self.__selection_dataset)
-        dataset_layout.add_widget(self.dataset_combo_box)
-        dataset_sub_widget = QWidget()
-        dataset_sub_layout = QHBoxLayout(dataset_sub_widget)
-        ###################
-        dataset_info_widget = QWidget()
-        dataset_info_layout = QVBoxLayout(dataset_info_widget)
-        dataset_info_layout.add_widget(QLabel("Included in dataset"))
-        self.inclusion_model = KlustRDataAnalyzeModel()
-        dataset_info_layout.add_widget(self.inclusion_model)
-        ###################
-        dataset_transformation_widget = QWidget()
-        dataset_transformation_layout = QVBoxLayout(dataset_transformation_widget)
-        dataset_transformation_layout.add_widget(QLabel("Transformation"))
-        self.transformation_model = KlustRDataAnalyzeModel()
-        dataset_transformation_layout.add_widget(self.transformation_model)
-        ####################
 
+        ######### Dataset #########
+        self.dataset_widget = KlustRDatasetAnalyzeModel()
 
-        dataset_sub_layout.add_widget(dataset_info_widget)
-        dataset_sub_layout.add_widget(dataset_transformation_widget)
-        dataset_layout.add_widget(dataset_sub_widget)
-
-        single_test_widget = QWidget()
-        single_test_layout = QVBoxLayout(single_test_widget)
-        single_test_layout.add_widget(QLabel("Single Test"))
+        ######### Single_test ###########
+        self.single_test_widget = QWidget()
+        
+        self.single_test_layout = QVBoxLayout(self.single_test_widget)
+        self.single_test_layout.add_widget(QLabel("Single Test"))
         self.single_test_combo_box = QComboBox()
         self.single_test_combo_box.add_items(["item1", "item2", "item3"])
         self.single_test_combo_box.currentIndexChanged.connect(self.__selection_img)
-        single_test_layout.add_widget(self.single_test_combo_box)
+        self.single_test_layout.add_widget(self.single_test_combo_box)
         #self.image_container = .....
         #single_test_layout.add_widget(self.image_container)
         bouton_classify = QPushButton("Classify")
         bouton_classify.clicked.connect(self.__classify)
-        single_test_layout.add_widget(bouton_classify)
+        self.single_test_layout.add_widget(bouton_classify)
         self.classify_result = QLabel("Not Classified")
         self.classify_result.alignment = Qt.AlignCenter
-        single_test_layout.add_widget(self.classify_result)
-
-        knn_parameters_widget = QWidget()
-        knn_parameters_layout = QVBoxLayout(knn_parameters_widget)
+        self.single_test_layout.add_widget(self.classify_result)
+        
+        ########### Knn params ###########
+        self.knn_parameters_widget = QWidget()
+        
+        knn_parameters_layout = QVBoxLayout(self.knn_parameters_widget)
         knn_parameters_layout.add_widget(QLabel("Knn Parameters"))
 
         k_widget = QWidget()
@@ -685,22 +712,19 @@ class KlustRDataAnalyzeViewWidget(QWidget):
         knn_parameters_layout.add_widget(k_widget)
         knn_parameters_layout.add_widget(dist_widget)
 
-
+        ########### About ###############
         bouton_about = QPushButton("About")
         bouton_about.clicked.connect(self.__show_dialog)
 
+        ##########################
 
         #layouting data
         view_data_widget = QWidget()
         view_data_layout = QVBoxLayout(view_data_widget)
-        view_data_layout.add_widget(dataset_widget)
-        view_data_layout.add_widget(single_test_widget)
-        view_data_layout.add_widget(knn_parameters_widget)
+        view_data_layout.add_widget(self.dataset_widget.general_widget)
+        view_data_layout.add_widget(self.single_test_widget)
+        view_data_layout.add_widget(self.knn_parameters_widget)
         view_data_layout.add_widget(bouton_about)
-
-
-
-
 
 
         #setup graphic widgets
@@ -735,14 +759,9 @@ class KlustRDataAnalyzeViewWidget(QWidget):
         # Inclus un gros text 
 
     @Slot()
-    def __selection_dataset(self,choix):
-        self.chosen_dataset = self.dataset_combo_box.item_text(choix)
-        inclusion_infos = {}
-        transformation_infos = {}
-        self.inclusion_model.update(inclusion_infos)
-        self.transformation_model.update(transformation_infos)
+    def update(self):
         #self.single_test_combo_box.update()
-        print("current dataset", self.chosen_dataset)
+        pass
 
 
 class KlustrMain(QWidget):  
