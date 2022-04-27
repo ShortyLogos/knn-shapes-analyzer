@@ -1,5 +1,5 @@
 import numpy as np
-
+import math
 
 class ShapeAnalyzer:
     def __init__(self, outer_radius_buffer):
@@ -16,6 +16,7 @@ class ShapeAnalyzer:
 
     def analyze(self, image):
         metrics = [self.pixels_on_perimeter(image), self.donut_ratio(image), self.complexity_index(image)]
+        # metrics = ['{0:.3g}'.format(self.pixels_on_perimeter(image)), '{0:.3g}'.format(self.donut_ratio(image)), '{0:.3g}'.format(self.complexity_index(image))]
         return metrics
 
     #### TROIS MÉTRIQUES ###########################################################################
@@ -38,7 +39,13 @@ class ShapeAnalyzer:
 
     # indice de complexité
     def complexity_index(self, image):
-        return self.area(image) / self.perimeter(image) ** 2
+        print(self.area(image))
+        print(self.perimeter(image))
+        c = self.area(image) / (self.perimeter(image) ** 2)
+        print(c)
+        print(4 * math.pi * self.area(image))
+        print(self.perimeter(image) ** 2)
+        return 1.44 - ((4 * math.pi * self.area(image))/(self.perimeter(image) ** 2))
     ################################################################################################
 
     def outer_donut_area(self, image, center, radius):
@@ -109,7 +116,6 @@ class ShapeAnalyzer:
         circle = (dist <= radius).astype(np.uint8)
         image[:,:] = np.logical_or(image[:,:], circle)
         
-
     ## POUR DES TESTS --- A EFFACER!!!!!
     def create_image(self, size):
         return np.zeros((size[1], size[0]), dtype=np.uint8)

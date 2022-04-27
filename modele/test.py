@@ -93,4 +93,4 @@ if __name__ == '__main__':
     analyzer = ShapeAnalyzer(0.2)
     img_test = analyzer.create_image((10, 10))
     analyzer.draw_rectangle(img_test, (2, 2), (7, 7))
-    print(analyzer.pixels_on_perimeter(img_test))
+    print(analyzer.analyze(img_test))
