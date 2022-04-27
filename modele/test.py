@@ -1,5 +1,5 @@
 import numpy as np
-from shape_ai.py import * 
+from shapeanalyzer import ShapeAnalyzer 
 
 # 1)
 def create_image(size):
@@ -90,5 +90,7 @@ def perimeter(image):
     pass
 
 if __name__ == '__main__':
-    img_test = create_image(20, 20)
-    print (img_test)
+    analyzer = ShapeAnalyzer(0.2)
+    img_test = analyzer.create_image((10, 10))
+    analyzer.draw_rectangle(img_test, (2, 2), (7, 7))
+    print(analyzer.analyze(img_test))
