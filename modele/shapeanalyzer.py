@@ -2,9 +2,20 @@ import numpy as np
 import math
 
 class ShapeAnalyzer:
-    def __init__(self, outer_radius_buffer):
-        self.__image = None
+    def __init__(self, image=None, outer_radius_buffer=None):
+        self.__image = image
         self.__outer_radius_buffer = outer_radius_buffer
+        if self.image is not None:
+            self.__area_shape = self.area(self.image)
+            self.__perimeter_shape = self.perimeter(self.image)
+
+    @property
+    def image(self):
+        return self.__image
+
+    @image.setter
+    def image(self, new_image):
+        self.__image = new_image
 
     @property
     def outer_radius_buffer(self):
@@ -13,6 +24,26 @@ class ShapeAnalyzer:
     @outer_radius_buffer.setter
     def outer_radius_buffer(self, value):
         self.__outer_radius_buffer = value
+
+    @property
+    def area_shape(self):
+        return self.__area_shape
+    
+    @area_shape.setter
+    def area_shape(self, value):
+        self.__area_shape = value
+
+    @property
+    def perimeter_shape(self):
+        return self.__perimeter_shape
+    
+    @perimeter_shape.setter
+    def perimeter_shape(self, value):
+        self.__perimeter_shape = value
+
+    @property
+    def centroid_shape(self):
+        pass
 
     def analyze(self, image):
         metrics = [self.pixels_on_perimeter(image), self.donut_ratio(image), self.complexity_index(image)]
@@ -39,13 +70,9 @@ class ShapeAnalyzer:
 
     # indice de complexité
     def complexity_index(self, image):
-        print(self.area(image))
-        print(self.perimeter(image))
-        c = self.area(image) / (self.perimeter(image) ** 2)
-        print(c)
-        print(4 * math.pi * self.area(image))
-        print(self.perimeter(image) ** 2)
-        return 1.44 - ((4 * math.pi * self.area(image))/(self.perimeter(image) ** 2))
+        # mesure normalisée un peu au-dessus de 1, devoir réviser la façon dont on calcul
+        # le périmètre avant la remise. Il est brouillé.
+        return ((4 * math.pi * self.area(image))/(self.perimeter(image) ** 2))
     ################################################################################################
 
     def outer_donut_area(self, image, center, radius):
