@@ -3,6 +3,7 @@ import numpy as np
 
 class ShapeAnalyzer:
     def __init__(self, outer_radius_buffer):
+        self.__image = None
         self.__outer_radius_buffer = outer_radius_buffer
 
     @property
@@ -14,20 +15,21 @@ class ShapeAnalyzer:
         self.__outer_radius_buffer = value
 
     def analyze(self, image):
-        metrics = [self.sum_sommets(image), self.donut_ratio(image), self.complexity_index(image)]
+        metrics = [self.pixels_on_perimeter(image), self.donut_ratio(image), self.complexity_index(image)]
         return metrics
 
-    #### TROIS MÉTRIQUES ###
-    # nombre de sommets
-    def sum_sommets(self, image):
+    #### TROIS MÉTRIQUES ###########################################################################
+    # nombre de pixels dans une zone du radius circoncis
+    def pixels_on_perimeter(self, image):
         distances = self.centroid_distances(image)
-        rayon = np.max(distances)
+        radius = np.max(distances)
         condition_sommet = distances[
             np.where(
-                (rayon - self.__outer_radius_buffer <= distances) & (distances <= rayon + self.__outer_radius_buffer))]
-        return np.size(condition_sommet)
+                (radius - self.__outer_radius_buffer <= distances) & (distances <= radius + self.__outer_radius_buffer))]
+        # après le calcul, on normalise les données et on les retourne
+        return np.size(condition_sommet) / self.outer_donut_area(image,self.centroid(image),radius)
 
-    # ratio entre le rayon externe et interne
+    # ratio entre le radius externe et interne
     def donut_ratio(self, image):
         distances = self.centroid_distances(image)
         inner_radius = np.min(distances)
@@ -37,7 +39,17 @@ class ShapeAnalyzer:
     # indice de complexité
     def complexity_index(self, image):
         return self.area(image) / self.perimeter(image) ** 2
-    ##################################
+    ################################################################################################
+
+    def outer_donut_area(self, image, center, radius):
+        outer_radius_area_buffer = image.copy()
+        outer_radius_area_minus_buffer = np.zeros((image.shape[1], image.shape[0])).astype(int)
+        self.draw_circle(outer_radius_area_buffer, center, radius + self.__outer_radius_buffer)
+        self.draw_circle(outer_radius_area_minus_buffer, center, radius - self.__outer_radius_buffer)
+        print(outer_radius_area_buffer)
+        print(image)
+        print(outer_radius_area_minus_buffer)
+        return np.sum(outer_radius_area_buffer) - np.sum(outer_radius_area_minus_buffer)
 
     # calcul du centroïde
     def centroid(self, image):
@@ -90,6 +102,14 @@ class ShapeAnalyzer:
     def calculate_distance(self, centroide, perimetre):
         return np.sum((centroide - perimetre) ** 2, axis=1) ** 0.5
 
+    def draw_circle(self,image, center, radius):
+
+        c, r = np.meshgrid(np.arange(image.shape[1]), np.arange(image.shape[0]))
+        dist = np.sqrt((r-center[1])**2 + (c-center[0])**2)
+        circle = (dist <= radius).astype(np.uint8)
+        image[:,:] = np.logical_or(image[:,:], circle)
+        
+
     ## POUR DES TESTS --- A EFFACER!!!!!
     def create_image(self, size):
         return np.zeros((size[1], size[0]), dtype=np.uint8)
@@ -100,8 +120,8 @@ class ShapeAnalyzer:
         image[top_left[1]:bottom_right[1], top_left[0]:bottom_right[0]] = 1
 
 
-# if __name__ == '__main__':
-#     analyzer = ShapeAnalyzer(0.2)
-#     img_test = analyzer.create_image((10, 10))
-#     analyzer.draw_rectangle(img_test, (2, 2), (7, 7))
-#     analyzer.sum_sommets(img_test)
+if __name__ == '__main__':
+    analyzer = ShapeAnalyzer(0.2)
+    img_test = analyzer.create_image((10, 10))
+    analyzer.draw_rectangle(img_test, (2, 2), (7, 7))
+    print(analyzer.pixels_on_perimeter(img_test))
