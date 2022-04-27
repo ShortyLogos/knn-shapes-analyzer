@@ -90,7 +90,7 @@ def perimeter(image):
     pass
 
 if __name__ == '__main__':
-    analyzer = ShapeAnalyzer(0.2)
-    img_test = analyzer.create_image((10, 10))
-    analyzer.draw_rectangle(img_test, (2, 2), (7, 7))
+    img_test = create_image((10, 10))
+    draw_rectangle(img_test, (2, 2), (7, 7))
+    analyzer = ShapeAnalyzer(img_test, 0.2)
     print(analyzer.analyze(img_test))
