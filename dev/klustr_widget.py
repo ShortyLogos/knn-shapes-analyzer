@@ -564,6 +564,8 @@ class KlustRDataSourceViewWidget(QWidget):
 
 
 class KlustRDatasetAnalyzeModel(QWidget):
+    dataset_selected = Signal(str)
+
     def __init__(self):
         super().__init__()
         self.general_widget = QGroupBox("Dataset")
@@ -618,14 +620,94 @@ class KlustRDatasetAnalyzeModel(QWidget):
         self.translated.text = str(chosen_dataset[2])
         self.rotated.text = str(chosen_dataset[3])
         self.scaled.text = str(chosen_dataset[4])
-        #Return chosen_dataset au parent          
+        self.dataset_selected.emit(chosen_dataset[1])
+
+class KlustRSingleAnalyzeModel(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.general_widget = QGroupBox("Single test")
+        general_layout = QVBoxLayout(self.general_widget)
+        
+        self.single_test_combo_box = QComboBox()
+        self.single_test_combo_box.add_items(["item1", "item2", "item3"])
+        self.single_test_combo_box.currentIndexChanged.connect(self.__selection_img)
+        general_layout.add_widget(self.single_test_combo_box)
+        
+        self.image_container = QLabel()
+        self.image_container.style_sheet = 'QLabel { background-color : #313D4A; padding : 10px 10px 10px 10px; }' # 354A64
+        self.image_container.alignment = Qt.AlignCenter
+        general_layout.add_widget(self.image_container)
+        
+        bouton_classify = QPushButton("Classify")
+        bouton_classify.clicked.connect(self.__classify)
+        general_layout.add_widget(bouton_classify)
+        self.classify_result = QLabel("Not Classified")
+        self.classify_result.alignment = Qt.AlignCenter
+        general_layout.add_widget(self.classify_result)
+    
+    def _update(self, dataset):
+        sb = QtCore.QSignalBlocker(self)
+        self.single_test_combo_box.clear()
+        sb.unblock()
+        for image_label in dataset:
+            self.single_test_combo_box.add_item(image_label[1], image_label)
+    
+    def update_from_dataset(self, dataset_name, klustr_dao):
+        self._update(klustr_dao.labels_from_dataset(dataset_name))
+
+    @Slot()
+    def __selection_img(self, choix):
+        if choix != -1: 
+            self.chosen_image = self.single_test_combo_box.item_text(choix)
+            image_id = self.single_test_combo_box.item_data(choix)[0]
+            print("fuck!")
+            #Aller voir ligne 563, je dois avoir le même data qu'il passe en parametre
+            #klustr_dao.image_from_label(label_id) va me retourner la liste des images pour ce label là et j'ai besoin d'une seule tuple dans cette liste à l'indice 6 ou 7
+            #voir lignes 186, 187, 241, 373 mais je crois que c'est plus comme 248
+            #img = qimage_argb32_from_png_decoding(images[0]image_info[6]) mais il faudrait recevoir une seule image au lieu de images
+            #image_item = QPixmap.from_image(chosen_image[2])
+            #self.image_container.pixmap = image_item.image
+
+
+    @Slot()
+    def __classify(self):
+        if self.chosen_image is None:
+            text = "Not Classified"
+        else:
+            text = self.chosen_image # à remplacer par retour de fonction de classification
+        self.classify_result.text = text
+
+
+class KlustRKnnParamsWidget(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.general_widget = QGroupBox("Knn parameters")
+        general_layout = QVBoxLayout(self.general_widget)
+
+        k_widget = QWidget()
+        k_layout = QHBoxLayout(k_widget)
+        self.__k_label = QLabel("K = 3")
+        k_layout.add_widget(self.__k_label)
+        self.__k_scrollbar = QScrollBar()
+        self.__k_scrollbar.orientation = Qt.Horizontal
+        k_layout.add_widget(self.__k_scrollbar)
+        general_layout.add_widget(k_widget)
+
+        dist_widget = QWidget()
+        dist_layout = QHBoxLayout(dist_widget)
+        self.__dist_label = QLabel("Max dist = 0.30")
+        dist_layout.add_widget(self.__dist_label)
+        self.__dist_scrollbar = QScrollBar()
+        self.__dist_scrollbar.orientation = Qt.Horizontal
+        dist_layout.add_widget(self.__dist_scrollbar)
+        general_layout.add_widget(dist_widget)
+
+
 
 class KlustRDataAnalyzeViewWidget(QWidget):
     def __init__(self, klustr_dao, parent=None):
         super().__init__(parent)
         self.klustr_dao = klustr_dao
-        self.chosen_dataset = None
-        self.chosen_image = None
         if self.klustr_dao.is_available:
             self._setup_gui()
             self._setup_models()
@@ -633,7 +715,6 @@ class KlustRDataAnalyzeViewWidget(QWidget):
             self._setup_invalid_gui()
 
     def _setup_models(self):
-        # Insérer le contenus dans les Dropdown à partir du dao
         self.dataset_widget.update(self.klustr_dao)
 
     def _setup_invalid_gui(self):
@@ -651,66 +732,21 @@ class KlustRDataAnalyzeViewWidget(QWidget):
         msgBox.exec()
 
     @Slot()
-    def __selection_img(self, choix):
-        self.chosen_image = self.single_test_combo_box.item_text(choix)
-        print("current image", self.chosen_image)
-
-    @Slot()
-    def __classify(self):
-        if self.chosen_image is None:
-            text = "Not Classified"
-        else:
-            text = self.chosen_image
-        self.classify_result.text = text
+    def _update_from_selection(self, chosen_dataset):
+        self.single_test_widget.update_from_dataset(chosen_dataset, self.klustr_dao)
 
     def _setup_gui(self):
         #setup 4 widgets data
 
         ######### Dataset #########
         self.dataset_widget = KlustRDatasetAnalyzeModel()
+        self.dataset_widget.dataset_selected.connect(self._update_from_selection)
 
         ######### Single_test ###########
-        self.single_test_widget = QWidget()
-        
-        self.single_test_layout = QVBoxLayout(self.single_test_widget)
-        self.single_test_layout.add_widget(QLabel("Single Test"))
-        self.single_test_combo_box = QComboBox()
-        self.single_test_combo_box.add_items(["item1", "item2", "item3"])
-        self.single_test_combo_box.currentIndexChanged.connect(self.__selection_img)
-        self.single_test_layout.add_widget(self.single_test_combo_box)
-        #self.image_container = .....
-        #single_test_layout.add_widget(self.image_container)
-        bouton_classify = QPushButton("Classify")
-        bouton_classify.clicked.connect(self.__classify)
-        self.single_test_layout.add_widget(bouton_classify)
-        self.classify_result = QLabel("Not Classified")
-        self.classify_result.alignment = Qt.AlignCenter
-        self.single_test_layout.add_widget(self.classify_result)
+        self.single_test_widget = KlustRSingleAnalyzeModel()
         
         ########### Knn params ###########
-        self.knn_parameters_widget = QWidget()
-        
-        knn_parameters_layout = QVBoxLayout(self.knn_parameters_widget)
-        knn_parameters_layout.add_widget(QLabel("Knn Parameters"))
-
-        k_widget = QWidget()
-        k_layout = QHBoxLayout(k_widget)
-        self.__k_label = QLabel("K = 3")
-        k_layout.add_widget(self.__k_label)
-        self.__k_scrollbar = QScrollBar()
-        self.__k_scrollbar.orientation = Qt.Horizontal
-        k_layout.add_widget(self.__k_scrollbar)
-
-        dist_widget = QWidget()
-        dist_layout = QHBoxLayout(dist_widget)
-        self.__dist_label = QLabel("Max dist = 0.30")
-        dist_layout.add_widget(self.__dist_label)
-        self.__dist_scrollbar = QScrollBar()
-        self.__dist_scrollbar.orientation = Qt.Horizontal
-        dist_layout.add_widget(self.__dist_scrollbar)
-
-        knn_parameters_layout.add_widget(k_widget)
-        knn_parameters_layout.add_widget(dist_widget)
+        self.knn_parameters_widget = KlustRKnnParamsWidget()
 
         ########### About ###############
         bouton_about = QPushButton("About")
@@ -722,8 +758,8 @@ class KlustRDataAnalyzeViewWidget(QWidget):
         view_data_widget = QWidget()
         view_data_layout = QVBoxLayout(view_data_widget)
         view_data_layout.add_widget(self.dataset_widget.general_widget)
-        view_data_layout.add_widget(self.single_test_widget)
-        view_data_layout.add_widget(self.knn_parameters_widget)
+        view_data_layout.add_widget(self.single_test_widget.general_widget)
+        view_data_layout.add_widget(self.knn_parameters_widget.general_widget)
         view_data_layout.add_widget(bouton_about)
 
 
