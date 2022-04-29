@@ -623,6 +623,8 @@ class KlustRDatasetAnalyzeModel(QWidget):
         self.dataset_selected.emit(chosen_dataset[1])
 
 class KlustRSingleAnalyzeModel(QWidget):
+    classify = Signal(str)
+    
     def __init__(self):
         super().__init__()
         self.general_widget = QGroupBox("Single test")
@@ -655,27 +657,32 @@ class KlustRSingleAnalyzeModel(QWidget):
     def update_from_dataset(self, dataset_name, klustr_dao):
         self._update(klustr_dao.labels_from_dataset(dataset_name))
 
+    def update_text(self, answer):
+        self.classify_result.text = answer
+
     @Slot()
     def __selection_img(self, choix):
         if choix != -1: 
-            self.chosen_image = self.single_test_combo_box.item_text(choix)
+            self.name_image = self.single_test_combo_box.item_text(choix)
             image = self.single_test_combo_box.item_data(choix)[2]
             image = qimage_argb32_from_png_decoding(image)
+            self.chosen_image = image
             image_item = QPixmap.from_image(image)
             self.image_container.pixmap = image_item
 
     @Slot()
     def __classify(self):
         if self.chosen_image is None:
-            text = "Not Classified"
+            self.classify_result.text = "Not Classified"
         else:
-            text = self.chosen_image # à remplacer par retour de fonction de classification
-        self.classify_result.text = text
+            self.classify.emit(self.chosen_image)
 
 
 class KlustRKnnParamsWidget(QWidget):
     def __init__(self):
         super().__init__()
+        self.knn = "knn"
+        self.dist = "dist"
         self.general_widget = QGroupBox("Knn parameters")
         general_layout = QVBoxLayout(self.general_widget)
 
@@ -687,6 +694,9 @@ class KlustRKnnParamsWidget(QWidget):
         self.__k_scrollbar.orientation = Qt.Horizontal
         k_layout.add_widget(self.__k_scrollbar)
         general_layout.add_widget(k_widget)
+
+        #K minimum toujours 1, maximum c'est racine carré du nbr de pop / categorie / 2
+        #dist c'est un hypothénuse d'une genre de normalisation entre tes n axes de ton knn 
 
         dist_widget = QWidget()
         dist_layout = QHBoxLayout(dist_widget)
@@ -720,16 +730,6 @@ class KlustRDataAnalyzeViewWidget(QWidget):
         layout.add_widget(not_available)
         QMessageBox.warning(self, 'Data access unavailable', 'Data access unavailable.')
 
-    @Slot()
-    def __show_dialog(self):
-        msgBox = QMessageBox()
-        msgBox.text=("Jean Marc The Terminator")
-        msgBox.exec()
-
-    @Slot()
-    def _update_from_selection(self, chosen_dataset):
-        self.single_test_widget.update_from_dataset(chosen_dataset, self.klustr_dao)
-
     def _setup_gui(self):
         #setup 4 widgets data
 
@@ -739,6 +739,7 @@ class KlustRDataAnalyzeViewWidget(QWidget):
 
         ######### Single_test ###########
         self.single_test_widget = KlustRSingleAnalyzeModel()
+        self.single_test_widget.classify.connect(self._classify)
         
         ########### Knn params ###########
         self.knn_parameters_widget = KlustRKnnParamsWidget()
@@ -753,8 +754,8 @@ class KlustRDataAnalyzeViewWidget(QWidget):
         view_data_widget = QWidget()
         view_data_layout = QVBoxLayout(view_data_widget)
         view_data_layout.add_widget(self.dataset_widget.general_widget)
-        view_data_layout.add_widget(self.single_test_widget.general_widget)
         view_data_layout.add_widget(self.knn_parameters_widget.general_widget)
+        view_data_layout.add_widget(self.single_test_widget.general_widget)
         view_data_layout.add_widget(bouton_about)
 
 
@@ -793,6 +794,24 @@ class KlustRDataAnalyzeViewWidget(QWidget):
     def update(self):
         #self.single_test_combo_box.update()
         pass
+
+    @Slot()
+    def __show_dialog(self):
+        msgBox = QMessageBox()
+        msgBox.text=("Jean Marc The Terminator")
+        msgBox.exec()
+
+    @Slot()
+    def _update_from_selection(self, chosen_dataset):
+        self.single_test_widget.update_from_dataset(chosen_dataset, self.klustr_dao)
+        ##### Appel aussi le modèle pour qu'il analyse et apprenne ce dataset #######
+
+    @Slot()
+    def _classify(self, chosen_image):
+        knn = self.knn_parameters_widget.knn
+        dist = self.knn_parameters_widget.dist
+        answer = self.single_test_widget.name_image + " " + knn + " " + dist #modele.classify(chosen_image, knn, dist)
+        self.single_test_widget.update_text(answer)
 
 
 class KlustrMain(QWidget):  

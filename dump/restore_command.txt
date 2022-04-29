@@ -1,1 +1,1 @@
-C:\travail\Postgrepsql\bin\pg_restore --host=localhost --port=5432 --username=postgres --dbname=postgres y:/klustr.dump
+C:\travail\Postgrepsql\bin\pg_restore --host=localhost --port=5432 --username=postgres --dbname=postgres .\dump\klustr.dump
