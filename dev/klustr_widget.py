@@ -659,15 +659,10 @@ class KlustRSingleAnalyzeModel(QWidget):
     def __selection_img(self, choix):
         if choix != -1: 
             self.chosen_image = self.single_test_combo_box.item_text(choix)
-            image_id = self.single_test_combo_box.item_data(choix)[0]
-            print("fuck!")
-            #Aller voir ligne 563, je dois avoir le même data qu'il passe en parametre
-            #klustr_dao.image_from_label(label_id) va me retourner la liste des images pour ce label là et j'ai besoin d'une seule tuple dans cette liste à l'indice 6 ou 7
-            #voir lignes 186, 187, 241, 373 mais je crois que c'est plus comme 248
-            #img = qimage_argb32_from_png_decoding(images[0]image_info[6]) mais il faudrait recevoir une seule image au lieu de images
-            #image_item = QPixmap.from_image(chosen_image[2])
-            #self.image_container.pixmap = image_item.image
-
+            image = self.single_test_combo_box.item_data(choix)[2]
+            image = qimage_argb32_from_png_decoding(image)
+            image_item = QPixmap.from_image(image)
+            self.image_container.pixmap = image_item
 
     @Slot()
     def __classify(self):
