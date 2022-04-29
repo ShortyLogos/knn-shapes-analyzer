@@ -1,0 +1,4 @@
+Méthode actuelle : Moins bonne de quatre méthodes (on fait la somme des pixels qu'on a identifié sur le périmètre)
+
+Besoin d'une étape intermédiaire : calculer le périmètre selon un sens horaire/anti-horaire
+Calculer la distance du centre de chaque point
