@@ -562,6 +562,12 @@ class KlustRDataSourceViewWidget(QWidget):
         if selected:
             self.image_info_widget.update_info(self.image_model.item_from_index(selected.indexes()[0]))
 
+#     ___  _       _ _                          __                      _      _     
+#    / _ \| |_    (_) |_ ___ _ __ ___  ___     / /  _ __ ___   ___   __| | ___| |___ 
+#   | | | | __|   | | __/ _ \ '_ ` _ \/ __|   / /  | '_ ` _ \ / _ \ / _` |/ _ \ / __|
+#   | |_| | |_    | | ||  __/ | | | | \__ \  / /   | | | | | | (_) | (_| |  __/ \__ \
+#    \__\_\\__|   |_|\__\___|_| |_| |_|___/ /_/    |_| |_| |_|\___/ \__,_|\___|_|___/
+#      
 
 class KlustRDatasetAnalyzeModel(QWidget):
     dataset_selected = Signal(str)
@@ -654,8 +660,8 @@ class KlustRSingleAnalyzeModel(QWidget):
         for image_label in dataset:
             self.single_test_combo_box.add_item(image_label[1], image_label)
     
-    def update_from_dataset(self, dataset_name, klustr_dao):
-        self._update(klustr_dao.labels_from_dataset(dataset_name))
+    def update_from_dataset(self, dataset):
+        self._update(dataset)
 
     def update_text(self, answer):
         self.classify_result.text = answer
@@ -695,7 +701,7 @@ class KlustRKnnParamsWidget(QWidget):
         k_layout.add_widget(self.__k_scrollbar)
         general_layout.add_widget(k_widget)
 
-        #K minimum toujours 1, maximum c'est racine carré du nbr de pop / categorie / 2
+        #K minimum toujours 1, maximum c'est racine carré du nbr de pop / nbr categorie et le centre est / 2 ou quelque chose du genre
         #dist c'est un hypothénuse d'une genre de normalisation entre tes n axes de ton knn 
 
         dist_widget = QWidget()
@@ -707,7 +713,18 @@ class KlustRKnnParamsWidget(QWidget):
         dist_layout.add_widget(self.__dist_scrollbar)
         general_layout.add_widget(dist_widget)
 
+class KlustR3DModel():
+    def __init__(self):
+        #À venir, modèle 3D avec Matlplotlib
+        pass
 
+
+#  _  __  _                 _     ____    ____            _                _                      _                       __     __  _                    __        __  _       _                  _   
+# | |/ / | |  _   _   ___  | |_  |  _ \  |  _ \    __ _  | |_    __ _     / \     _ __     __ _  | |  _   _   ____   ___  \ \   / / (_)   ___  __      __ \ \      / / (_)   __| |   __ _    ___  | |_ 
+# | ' /  | | | | | | / __| | __| | |_) | | | | |  / _` | | __|  / _` |   / _ \   | '_ \   / _` | | | | | | | |_  /  / _ \  \ \ / /  | |  / _ \ \ \ /\ / /  \ \ /\ / /  | |  / _` |  / _` |  / _ \ | __|
+# | . \  | | | |_| | \__ \ | |_  |  _ <  | |_| | | (_| | | |_  | (_| |  / ___ \  | | | | | (_| | | | | |_| |  / /  |  __/   \ V /   | | |  __/  \ V  V /    \ V  V /   | | | (_| | | (_| | |  __/ | |_ 
+# |_|\_\ |_|  \__,_| |___/  \__| |_| \_\ |____/   \__,_|  \__|  \__,_| /_/   \_\ |_| |_|  \__,_| |_|  \__, | /___|  \___|    \_/    |_|  \___|   \_/\_/      \_/\_/    |_|  \__,_|  \__, |  \___|  \__|
+#                                                                                                     |___/                                                                         |___/              
 
 class KlustRDataAnalyzeViewWidget(QWidget):
     def __init__(self, klustr_dao, parent=None):
@@ -731,26 +748,22 @@ class KlustRDataAnalyzeViewWidget(QWidget):
         QMessageBox.warning(self, 'Data access unavailable', 'Data access unavailable.')
 
     def _setup_gui(self):
-        #setup 4 widgets data
-
-        ######### Dataset #########
+        ########### Dataset #################
         self.dataset_widget = KlustRDatasetAnalyzeModel()
         self.dataset_widget.dataset_selected.connect(self._update_from_selection)
 
-        ######### Single_test ###########
-        self.single_test_widget = KlustRSingleAnalyzeModel()
-        self.single_test_widget.classify.connect(self._classify)
-        
-        ########### Knn params ###########
+        ########### Knn params ##############
         self.knn_parameters_widget = KlustRKnnParamsWidget()
 
-        ########### About ###############
+        ########### Single_test #############
+        self.single_test_widget = KlustRSingleAnalyzeModel()
+        self.single_test_widget.classify.connect(self._classify)
+
+        ########### About Button ############
         bouton_about = QPushButton("About")
         bouton_about.clicked.connect(self.__show_dialog)
 
-        ##########################
-
-        #layouting data
+        ########### Data General layout #####
         view_data_widget = QWidget()
         view_data_layout = QVBoxLayout(view_data_widget)
         view_data_layout.add_widget(self.dataset_widget.general_widget)
@@ -758,12 +771,10 @@ class KlustRDataAnalyzeViewWidget(QWidget):
         view_data_layout.add_widget(self.single_test_widget.general_widget)
         view_data_layout.add_widget(bouton_about)
 
-
-        #setup graphic widgets
+        ########### 3D Model Widget ######### (À Faire cette semaine)
         self.graphic_widget = QWidget()
 
-
-        #Layouting graphic
+        ########### 3D General Layout #######
         view_graphic_widget = QWidget()
         view_graphic_layout = QVBoxLayout(view_graphic_widget)
         graphic_title = QLabel("KLUSTR KNN CLASSIFICATION")
@@ -771,40 +782,24 @@ class KlustRDataAnalyzeViewWidget(QWidget):
         view_graphic_layout.add_widget(graphic_title)
         view_graphic_layout.add_widget(self.graphic_widget)
 
-
-        #main layouting
+        ########### Main Layout ##############
         layout = QHBoxLayout(self)
         layout.add_widget(view_data_widget)
-        layout.add_widget(view_graphic_widget)
-        # Placer les layout qui contiennent le data
-        # Dropdown c'est dataset[0] dataset[1] dans la ligne 109
-        # En dessous du dropdown, les infos sont dans la boucle à la ligne 109
-
-        # Dropdown 2 c'est image_info[2] ou image_info[3] comme ligne 241, 248-249 pour avoir le tableau de image_infos 
-        # Pour imageView, utiliser les lignes 297, 298, 299, 373
-        # Bouton classify appel la fonction dans le modèle et lui passe l'objet image correspondant au label sélectionné
-        # TextView qui affiche le return de leur fonction
-        
-        # 2x rows horizontales composées d'un label et d'un scrollbar
-        
-        # Bouton About qui ouvre un QMessageBox.about
-        # Inclus un gros text 
-
-    @Slot()
-    def update(self):
-        #self.single_test_combo_box.update()
-        pass
+        layout.add_widget(view_graphic_widget)        
 
     @Slot()
     def __show_dialog(self):
         msgBox = QMessageBox()
-        msgBox.text=("Jean Marc The Terminator")
+        with open("readme.txt") as readme:
+            contents = readme.read()
+            msgBox.text=(contents)
         msgBox.exec()
 
     @Slot()
     def _update_from_selection(self, chosen_dataset):
-        self.single_test_widget.update_from_dataset(chosen_dataset, self.klustr_dao)
-        ##### Appel aussi le modèle pour qu'il analyse et apprenne ce dataset #######
+        dataset = self.klustr_dao.labels_from_dataset(chosen_dataset)
+        self.single_test_widget.update_from_dataset(dataset)
+        #modele.learnThisShit(dataset)
 
     @Slot()
     def _classify(self, chosen_image):
@@ -814,16 +809,19 @@ class KlustRDataAnalyzeViewWidget(QWidget):
         self.single_test_widget.update_text(answer)
 
 
+#  __  __      _      ___   _   _ 
+# |  \/  |    / \    |_ _| | \ | |
+# | |\/| |   / _ \    | |  |  \| |
+# | |  | |  / ___ \   | |  | |\  |
+# |_|  |_| /_/   \_\ |___| |_| \_|
+#                                 
+
 class KlustrMain(QWidget):  
     def __init__(self, klustr_dao, parent=None):
         super().__init__(parent)
-        
-        # Initialize tab screen
         self.tabs = QTabWidget()
         self.tab1 = KlustRDataSourceViewWidget(klustr_dao)
         self.tab2 = KlustRDataAnalyzeViewWidget(klustr_dao)
-        
-        # Add tabs
         self.tabs.add_tab(self.tab1,"Tab 1")
         self.tabs.add_tab(self.tab2,"Tab 2")
         
@@ -835,5 +833,4 @@ if __name__ == '__main__':
     source_data_widget = KlustrMain(klustr_dao)
     source_data_widget.window_title = 'Kluster App'
     source_data_widget.tabs.show()
-
     sys.exit(app.exec_())    
