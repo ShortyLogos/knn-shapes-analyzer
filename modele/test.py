@@ -1,5 +1,6 @@
 import numpy as np
-from shapeanalyzer import ShapeAnalyzer 
+from knn import KNN
+from shapeanalyzer import ShapeAnalyzer
 
 # 1)
 def create_image(size):
@@ -90,7 +91,22 @@ def perimeter(image):
     pass
 
 if __name__ == '__main__':
-    img_test = create_image((10, 10))
-    draw_rectangle(img_test, (2, 2), (7, 7))
-    analyzer = ShapeAnalyzer(img_test, 0.2)
-    print(analyzer.analyze(img_test))
+    # img_test = create_image((10, 10))
+    # draw_rectangle(img_test, (2, 2), (7, 7))
+    # analyzer = ShapeAnalyzer(img_test, 0.2)
+    # print(analyzer.analyze(img_test))
+    metrics1 = [0.1, 0.5, 0.3]
+    metrics1 = np.array(metrics1)
+    metrics2 = [0.5, 0.4, 0.32]
+    metrics2 = np.array(metrics2)
+    metrics3 = [0.11, 0.78, 0.45]
+    metrics3 = np.array(metrics3)
+    knn = KNN(3, 3)
+    knn.add_training_point(metrics1, "triangle")
+    knn.add_training_point(metrics2, "carré")
+    knn.add_training_point(metrics2, "triangle")
+    print("On pratique le debugger")
+
+
+
+
