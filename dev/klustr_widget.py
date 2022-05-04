@@ -32,13 +32,15 @@
 
 import sys
 
+import numpy as np ###################################################################################
+
 from db_credential import PostgreSQLCredential
 from klustr_dao import PostgreSQLKlustRDAO
 from klustr_utils import qimage_argb32_from_png_decoding
 
 from PySide6 import QtCore, QtGui, QtWidgets
 from PySide6.QtCore import Qt, QSize
-from PySide6.QtCore import Signal, Slot
+from PySide6.QtCore import Signal, Slot, QTimer
 from PySide6.QtWidgets import (QApplication, QWidget, QListView, QTreeView,
                                QGroupBox, QLabel, QCheckBox, QPlainTextEdit,
                                QGridLayout, QHBoxLayout, QVBoxLayout, QSplitter, QSizePolicy,
@@ -46,6 +48,11 @@ from PySide6.QtWidgets import (QApplication, QWidget, QListView, QTreeView,
 from PySide6.QtGui import  (QImage, QPixmap, QIcon, QPainter, QFont, QPen, QBrush, QColor, 
                             QStandardItemModel, QStandardItem,
                             QClipboard)
+
+import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+
 from __feature__ import snake_case, true_property 
 
 
@@ -642,7 +649,7 @@ class KlustRSingleAnalyzeModel(QWidget):
         general_layout.add_widget(self.single_test_combo_box)
         
         self.image_container = QLabel()
-        self.image_container.style_sheet = 'QLabel { background-color : #313D4A; padding : 10px 10px 10px 10px; }' # 354A64
+        self.image_container.style_sheet = 'QLabel { background-color : #313D4A; padding : 10px 10px 10px 10px; }'
         self.image_container.alignment = Qt.AlignCenter
         general_layout.add_widget(self.image_container)
         
@@ -713,10 +720,69 @@ class KlustRKnnParamsWidget(QWidget):
         dist_layout.add_widget(self.__dist_scrollbar)
         general_layout.add_widget(dist_widget)
 
-class KlustR3DModel():
-    def __init__(self):
-        #À venir, modèle 3D avec Matlplotlib
-        pass
+class KlustR3DModel(QWidget):
+    def __init__(self, knn, title, xLabel, yLabel, zLabel):
+        super().__init__()
+        self.general_widget = QLabel()
+        
+        self.title = title
+        self.x_label = xLabel
+        self.y_label = yLabel
+        self.z_label = zLabel
+        self.markers = ('o', '.', 'v', '2', '8', 's', 'X', 'D', '*', 'H')
+
+        self._elevation = 30
+        self._azimuth = 45
+        self._azimuth_inc = 2.5
+        
+        self._timer = QtCore.QTimer()
+        self._timer.timeout.connect(self._rotate)
+        self._timer.start(1000)
+        
+        self._knn = KNN(3) #knn dans les params
+
+    @Slot()
+    def _rotate(self):
+        self.update_graphic()
+        self._azimuth += self._azimuth_inc
+   
+    def update_graphic(self):
+        width = 500
+        height = 500
+        dpi = 100
+        figure = Figure(figsize=(width / dpi, height / dpi), dpi=dpi)
+        canvas = FigureCanvas(figure)
+        ax = figure.add_subplot(111, projection='3d')
+        ax.set_proj_type('persp')
+
+        #for shapes in dataset:
+        #   color = rgb(random(0,1), random(0,1), random(0,1))
+        #   marker = self.markers[random(0, (len(self.markers)-1)]
+        #   ax.scatter(self._knn.training_data[:,0], self._knn.training_data[:,1], self._knn.training_data[:,2], marker='o', color='r')
+
+        ax.scatter(self._knn.training_data[:,0], self._knn.training_data[:,1], self._knn.training_data[:,2], marker='o', color='b')
+
+        ax.set_title(self.title)
+        ax.set_xlabel(self.x_label)
+        ax.set_ylabel(self.y_label)
+        ax.set_zlabel(self.z_label)
+
+        ax.view_init(self._elevation, self._azimuth)
+
+        canvas.draw()
+        w, h = canvas.get_width_height()
+        img = QImage(canvas.buffer_rgba(), w, h, w * 4, QImage.Format_ARGB32)
+
+        self.general_widget.set_pixmap(QtGui.QPixmap.from_image(img))
+
+
+#################################################################################
+
+class KNN:
+    def __init__(self, dimension):
+        self.training_data = np.empty((0,dimension), dtype=np.float32)
+
+#################################################################################
 
 
 #  _  __  _                 _     ____    ____            _                _                      _                       __     __  _                    __        __  _       _                  _   
@@ -771,16 +837,12 @@ class KlustRDataAnalyzeViewWidget(QWidget):
         view_data_layout.add_widget(self.single_test_widget.general_widget)
         view_data_layout.add_widget(bouton_about)
 
-        ########### 3D Model Widget ######### (À Faire cette semaine)
-        self.graphic_widget = QWidget()
-
         ########### 3D General Layout #######
         view_graphic_widget = QWidget()
         view_graphic_layout = QVBoxLayout(view_graphic_widget)
-        graphic_title = QLabel("KLUSTR KNN CLASSIFICATION")
-        graphic_title.alignment = Qt.AlignCenter
-        view_graphic_layout.add_widget(graphic_title)
-        view_graphic_layout.add_widget(self.graphic_widget)
+        self.graphic_widget = KlustR3DModel('Ceci sera le modele knn','KLUSTR KNN CLASSIFICATION', 'X Label', 'Y Label', 'Z Label')
+        #self.graphic_widget.alignment = Qt.AlignCenter (Marche pas)
+        view_graphic_layout.add_widget(self.graphic_widget.general_widget)
 
         ########### Main Layout ##############
         layout = QHBoxLayout(self)
@@ -824,11 +886,10 @@ class KlustrMain(QWidget):
         self.tab2 = KlustRDataAnalyzeViewWidget(klustr_dao)
         self.tabs.add_tab(self.tab1,"Tab 1")
         self.tabs.add_tab(self.tab2,"Tab 2")
-        
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    credential = PostgreSQLCredential(password='ASDasd123')
+    credential = PostgreSQLCredential(password='AAAaaa111')
     klustr_dao = PostgreSQLKlustRDAO(credential)
     source_data_widget = KlustrMain(klustr_dao)
     source_data_widget.window_title = 'Kluster App'
