@@ -724,6 +724,7 @@ class KlustR3DModel(QWidget):
     def __init__(self, knn, title, xLabel, yLabel, zLabel):
         super().__init__()
         self.general_widget = QLabel()
+        self._knn = knn
         
         self.title = title
         self.x_label = xLabel
@@ -739,7 +740,6 @@ class KlustR3DModel(QWidget):
         self._timer.timeout.connect(self._rotate)
         self._timer.start(1000)
         
-        self._knn = KNN(3) #knn dans les params
 
     @Slot()
     def _rotate(self):
@@ -760,7 +760,7 @@ class KlustR3DModel(QWidget):
         #   marker = self.markers[random(0, (len(self.markers)-1)]
         #   ax.scatter(self._knn.training_data[:,0], self._knn.training_data[:,1], self._knn.training_data[:,2], marker='o', color='r')
 
-        ax.scatter(self._knn.training_data[:,0], self._knn.training_data[:,1], self._knn.training_data[:,2], marker='o', color='b')
+        ax.scatter(self._knn.training_data[:,0], self._knn.training_data[:,1], self._knn.training_data[:,2], marker='o', color='b') ###########################################
 
         ax.set_title(self.title)
         ax.set_xlabel(self.x_label)
@@ -776,15 +776,6 @@ class KlustR3DModel(QWidget):
         self.general_widget.set_pixmap(QtGui.QPixmap.from_image(img))
 
 
-#################################################################################
-
-class KNN:
-    def __init__(self, dimension):
-        self.training_data = np.empty((0,dimension), dtype=np.float32)
-
-#################################################################################
-
-
 #  _  __  _                 _     ____    ____            _                _                      _                       __     __  _                    __        __  _       _                  _   
 # | |/ / | |  _   _   ___  | |_  |  _ \  |  _ \    __ _  | |_    __ _     / \     _ __     __ _  | |  _   _   ____   ___  \ \   / / (_)   ___  __      __ \ \      / / (_)   __| |   __ _    ___  | |_ 
 # | ' /  | | | | | | / __| | __| | |_) | | | | |  / _` | | __|  / _` |   / _ \   | '_ \   / _` | | | | | | | |_  /  / _ \  \ \ / /  | |  / _ \ \ \ /\ / /  \ \ /\ / /  | |  / _` |  / _` |  / _ \ | __|
@@ -793,9 +784,10 @@ class KNN:
 #                                                                                                     |___/                                                                         |___/              
 
 class KlustRDataAnalyzeViewWidget(QWidget):
-    def __init__(self, klustr_dao, parent=None):
+    def __init__(self, knn, klustr_dao, parent=None):
         super().__init__(parent)
         self.klustr_dao = klustr_dao
+        self._knn = knn
         if self.klustr_dao.is_available:
             self._setup_gui()
             self._setup_models()
@@ -814,22 +806,22 @@ class KlustRDataAnalyzeViewWidget(QWidget):
         QMessageBox.warning(self, 'Data access unavailable', 'Data access unavailable.')
 
     def _setup_gui(self):
-        ########### Dataset #################
+        #--------- Dataset ---------#
         self.dataset_widget = KlustRDatasetAnalyzeModel()
         self.dataset_widget.dataset_selected.connect(self._update_from_selection)
 
-        ########### Knn params ##############
+        #--------- Knn params ---------#
         self.knn_parameters_widget = KlustRKnnParamsWidget()
 
-        ########### Single_test #############
+        #--------- Single_test ---------#
         self.single_test_widget = KlustRSingleAnalyzeModel()
         self.single_test_widget.classify.connect(self._classify)
 
-        ########### About Button ############
+        #--------- About Button ---------#
         bouton_about = QPushButton("About")
         bouton_about.clicked.connect(self.__show_dialog)
 
-        ########### Data General layout #####
+        #--------- Data General layout ---------#
         view_data_widget = QWidget()
         view_data_layout = QVBoxLayout(view_data_widget)
         view_data_layout.add_widget(self.dataset_widget.general_widget)
@@ -837,14 +829,14 @@ class KlustRDataAnalyzeViewWidget(QWidget):
         view_data_layout.add_widget(self.single_test_widget.general_widget)
         view_data_layout.add_widget(bouton_about)
 
-        ########### 3D General Layout #######
+        #--------- 3D General Layout ---------#
         view_graphic_widget = QWidget()
         view_graphic_layout = QVBoxLayout(view_graphic_widget)
-        self.graphic_widget = KlustR3DModel('Ceci sera le modele knn','KLUSTR KNN CLASSIFICATION', 'X Label', 'Y Label', 'Z Label')
-        #self.graphic_widget.alignment = Qt.AlignCenter (Marche pas)
+        self.graphic_widget = KlustR3DModel(self._knn,'KLUSTR KNN CLASSIFICATION', 'X Label', 'Y Label', 'Z Label')
+        view_graphic_layout.alignment = Qt.AlignHCenter #######################################################################
         view_graphic_layout.add_widget(self.graphic_widget.general_widget)
 
-        ########### Main Layout ##############
+        #--------- Main Layout ---------#
         layout = QHBoxLayout(self)
         layout.add_widget(view_data_widget)
         layout.add_widget(view_graphic_widget)        
@@ -861,13 +853,14 @@ class KlustRDataAnalyzeViewWidget(QWidget):
     def _update_from_selection(self, chosen_dataset):
         dataset = self.klustr_dao.labels_from_dataset(chosen_dataset)
         self.single_test_widget.update_from_dataset(dataset)
-        #modele.learnThisShit(dataset)
+        self._knn.learn_this_shit(dataset) ######################################################################################
 
     @Slot()
     def _classify(self, chosen_image):
+        chosen_image = self.single_test_widget.name_image ######################################################################
         knn = self.knn_parameters_widget.knn
         dist = self.knn_parameters_widget.dist
-        answer = self.single_test_widget.name_image + " " + knn + " " + dist #modele.classify(chosen_image, knn, dist)
+        answer = self._knn.classify(chosen_image, knn, dist) ####################################################################
         self.single_test_widget.update_text(answer)
 
 
@@ -879,19 +872,34 @@ class KlustRDataAnalyzeViewWidget(QWidget):
 #                                 
 
 class KlustrMain(QWidget):  
-    def __init__(self, klustr_dao, parent=None):
+    def __init__(self, knn, klustr_dao, parent=None):
         super().__init__(parent)
         self.tabs = QTabWidget()
         self.tab1 = KlustRDataSourceViewWidget(klustr_dao)
-        self.tab2 = KlustRDataAnalyzeViewWidget(klustr_dao)
+        self.tab2 = KlustRDataAnalyzeViewWidget(knn, klustr_dao)
         self.tabs.add_tab(self.tab1,"Tab 1")
         self.tabs.add_tab(self.tab2,"Tab 2")
+
+#################################################################################
+
+class KNN:
+    def __init__(self, dimension):
+        self.training_data = np.empty((0,dimension), dtype=np.float32)
+
+    def learn_this_shit(self, dataset):
+        pass
+
+    def classify(self, chosen_image, knn, dist):
+        return chosen_image + " " + knn + " " + dist
+
+#################################################################################
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     credential = PostgreSQLCredential(password='AAAaaa111')
     klustr_dao = PostgreSQLKlustRDAO(credential)
-    source_data_widget = KlustrMain(klustr_dao)
+    knn = KNN(3)
+    source_data_widget = KlustrMain(knn, klustr_dao)
     source_data_widget.window_title = 'Kluster App'
     source_data_widget.tabs.show()
     sys.exit(app.exec_())    
