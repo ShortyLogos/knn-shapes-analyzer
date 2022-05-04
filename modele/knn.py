@@ -5,11 +5,10 @@ import shapeanalyzer
 
 class KNN:
     def __init__(self, dimensions, k_constant):
-        self.__dataset = np.empty((0, dimensions + 1), dtype=np.float32)
         self.__dimensions = dimensions
+        self.__dataset = np.empty((0, self.__dimensions + 1), dtype=np.float32)
         self.__k_constant = k_constant
         self.__k_tags = np.empty(0, dtype=np.str_)
-        # self.__k_tags = []
 
     @property
     def dataset(self):
@@ -42,7 +41,8 @@ class KNN:
         classified_point = [unclassified_point, tag]
         return classified_point
 
-        # point = un ensemble de métriques
+    def clear_dataset(self):
+        self.__dataset = np.empty((0, self.__dimensions + 1), dtype=np.float32)
 
     def get_most_common_tag(self, tags):
         # https://stackoverflow.com/questions/19909167/how-to-find-most-frequent-string-element-in-numpy-ndarray
@@ -70,9 +70,12 @@ class KNN:
         distances_and_index_array = np.vstack((distances_only_array, tag_index_array)).T  # À TESTER
         return distances_and_index_array
 
+    # À ajouter au contrôleur
     def new_dataset(self, data):
-        # self.dataset.clear()
-        pass
+        self.clear_dataset()
+        for element in data:
+            metrics, tag = element
+            self.add_training_point(metrics, tag)
 
     def add_training_point(self, point, tag):
         # on transforme point en nparray si pas le cas
@@ -80,10 +83,9 @@ class KNN:
             self.add_tag(tag)
         index_tag = np.where(self.__k_tags == tag)
         point = np.append(point, index_tag[0], axis=0)
-        if point.shape[0] is not self.__dataset.shape[1]:
-            raise ValueError('Méchant problème')
+        # if point.shape[0] is not self.__dataset.shape[1]:
+        #     raise ValueError('Méchant problème')
         self.__dataset = np.append(self.__dataset, point[np.newaxis, :], axis=0)
-
-    # faire un round sur le floating point de l'index
+        # faire un round sur le floating point de l'index
 
     # séparer les tags
