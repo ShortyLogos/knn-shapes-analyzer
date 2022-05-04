@@ -760,7 +760,8 @@ class KlustR3DModel(QWidget):
         #   marker = self.markers[random(0, (len(self.markers)-1)]
         #   ax.scatter(self._knn.training_data[:,0], self._knn.training_data[:,1], self._knn.training_data[:,2], marker='o', color='r')
 
-        ax.scatter(self._knn.training_data[:,0], self._knn.training_data[:,1], self._knn.training_data[:,2], marker='o', color='b') ###########################################
+        if self._knn.point_classifie is not None:
+            ax.scatter(self._knn.point_classifie.x, self._knn.point_classifie.y, self._knn.point_classifie.z, marker='p', color='') ###########################################
 
         ax.set_title(self.title)
         ax.set_xlabel(self.x_label)
@@ -784,18 +785,18 @@ class KlustR3DModel(QWidget):
 #                                                                                                     |___/                                                                         |___/              
 
 class KlustRDataAnalyzeViewWidget(QWidget):
-    def __init__(self, knn, klustr_dao, parent=None):
+    def __init__(self, controleur, klustr_dao, parent=None):
         super().__init__(parent)
-        self.klustr_dao = klustr_dao
-        self._knn = knn
-        if self.klustr_dao.is_available:
+        self._klustr_dao = klustr_dao
+        self._controleur = controleur
+        if self._klustr_dao.is_available:
             self._setup_gui()
             self._setup_models()
         else:
             self._setup_invalid_gui()
 
     def _setup_models(self):
-        self.dataset_widget.update(self.klustr_dao)
+        self.dataset_widget.update(self._klustr_dao)
 
     def _setup_invalid_gui(self):
         not_available = QLabel('Data access unavailable')
@@ -832,7 +833,7 @@ class KlustRDataAnalyzeViewWidget(QWidget):
         #--------- 3D General Layout ---------#
         view_graphic_widget = QWidget()
         view_graphic_layout = QVBoxLayout(view_graphic_widget)
-        self.graphic_widget = KlustR3DModel(self._knn,'KLUSTR KNN CLASSIFICATION', 'X Label', 'Y Label', 'Z Label')
+        self.graphic_widget = KlustR3DModel(self._controleur,'KLUSTR KNN CLASSIFICATION', 'X Label', 'Y Label', 'Z Label')
         view_graphic_layout.alignment = Qt.AlignHCenter #######################################################################
         view_graphic_layout.add_widget(self.graphic_widget.general_widget)
 
@@ -851,16 +852,17 @@ class KlustRDataAnalyzeViewWidget(QWidget):
 
     @Slot()
     def _update_from_selection(self, chosen_dataset):
-        dataset = self.klustr_dao.labels_from_dataset(chosen_dataset)
+        dataset = self._klustr_dao.labels_from_dataset(chosen_dataset)
         self.single_test_widget.update_from_dataset(dataset)
-        self._knn.learn_this_shit(dataset) ######################################################################################
+        self._controleur.new_dataset(dataset) ###################################################################################### dataset au complet
 
     @Slot()
     def _classify(self, chosen_image):
         chosen_image = self.single_test_widget.name_image ######################################################################
         knn = self.knn_parameters_widget.knn
         dist = self.knn_parameters_widget.dist
-        answer = self._knn.classify(chosen_image, knn, dist) ####################################################################
+        answer = self._controleur.classify(chosen_image, knn, dist) ####################################################################
+        
         self.single_test_widget.update_text(answer)
 
 
@@ -872,34 +874,32 @@ class KlustRDataAnalyzeViewWidget(QWidget):
 #                                 
 
 class KlustrMain(QWidget):  
-    def __init__(self, knn, klustr_dao, parent=None):
+    def __init__(self, controleur, klustr_dao, parent=None):
         super().__init__(parent)
         self.tabs = QTabWidget()
         self.tab1 = KlustRDataSourceViewWidget(klustr_dao)
-        self.tab2 = KlustRDataAnalyzeViewWidget(knn, klustr_dao)
+        self.tab2 = KlustRDataAnalyzeViewWidget(controleur, klustr_dao)
         self.tabs.add_tab(self.tab1,"Tab 1")
         self.tabs.add_tab(self.tab2,"Tab 2")
 
-#################################################################################
+class Main():
+    def __init__(self):
+        credential = PostgreSQLCredential(password='AAAaaa111')
+        klustr_dao = PostgreSQLKlustRDAO(credential)
+        self.source_data_widget = KlustrMain(self, klustr_dao)
+        self.source_data_widget.window_title = 'Kluster App'
+        self.point_classifie = None
 
-class KNN:
-    def __init__(self, dimension):
-        self.training_data = np.empty((0,dimension), dtype=np.float32)
-
-    def learn_this_shit(self, dataset):
+    def new_dataset(self, dataset):
         pass
 
     def classify(self, chosen_image, knn, dist):
-        return chosen_image + " " + knn + " " + dist
+        #self.point_classifie = modele.classify(chosen_image, knn, dist)
+        return chosen_image + " analysé avec " + knn + "de k et une distance maximale de " + dist
 
-#################################################################################
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    credential = PostgreSQLCredential(password='AAAaaa111')
-    klustr_dao = PostgreSQLKlustRDAO(credential)
-    knn = KNN(3)
-    source_data_widget = KlustrMain(knn, klustr_dao)
-    source_data_widget.window_title = 'Kluster App'
-    source_data_widget.tabs.show()
+    main = Main()
+    main.source_data_widget.tabs.show()
     sys.exit(app.exec_())    
