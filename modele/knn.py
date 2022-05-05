@@ -65,9 +65,9 @@ class KNN:
         return k_neighbours_tags
 
     def distances_from_point(self, unclassified_point):
-        distances_only_array = np.sum((unclassified_point - self.dataset[:-1, :]) ** 2, axis=1) ** 0.5
-        tag_index_array = self.dataset[-1, :]  # indices associatifs pour les tags
-        distances_and_index_array = np.vstack((distances_only_array, tag_index_array)).T  # À TESTER
+        distances_only_array = np.sum((unclassified_point - self.dataset[:, :-1]) ** 2, axis=1) ** 0.5
+        tag_index_array = self.dataset[:, -1] 
+        distances_and_index_array = np.vstack((distances_only_array, tag_index_array)).T
         return distances_and_index_array
 
     # À ajouter au contrôleur
