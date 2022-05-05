@@ -702,12 +702,12 @@ class KlustRKnnParamsWidget(QWidget):
 
         k_widget = QWidget()
         k_layout = QHBoxLayout(k_widget)
-        self.__k_label = QLabel("K = 3")
+        self.__k_label = QLabel("K = 1")
         k_layout.add_widget(self.__k_label)
         self.__k_scrollbar = QScrollBar()
         self.__k_scrollbar.orientation = Qt.Horizontal
         self.__k_scrollbar.set_range(1,5)
-        self.__k_scrollbar.value=0
+        self.__k_scrollbar.value=1
         k_layout.add_widget(self.__k_scrollbar)
         general_layout.add_widget(k_widget)
         self.__k_scrollbar.valueChanged.connect(self.__update_knn_param)
@@ -731,9 +731,11 @@ class KlustRKnnParamsWidget(QWidget):
 
     @Slot()
     def __update_distance(self):
+
         self.__dist_label.set_text("Max dist = "+str(self.__dist_scrollbar.value/10))
     @Slot()
     def __update_knn_param(self):
+        #######ici je dois set self.__k_scrollbar.set_range(1,max_range) avec squareroot(image count)/2 comment get image count?
          self.__k_label.set_text("k = "+str(self.__k_scrollbar.value))
 
 class KlustR3DModel(QWidget):
@@ -916,12 +918,6 @@ class Main():
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    credential = PostgreSQLCredential(password='ASDasd123')
-    klustr_dao = PostgreSQLKlustRDAO(credential)
-    knn = KNN(3)
-    source_data_widget = KlustrMain(knn, klustr_dao)
-    source_data_widget.window_title = 'Kluster App'
-    source_data_widget.tabs.show()
     main = Main()
     main.source_data_widget.tabs.show()
     sys.exit(app.exec_())    
