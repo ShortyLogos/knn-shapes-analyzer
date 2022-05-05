@@ -885,7 +885,6 @@ class KlustRDataAnalyzeViewWidget(QWidget):
         
         self.single_test_widget.update_text(answer)
 
-
 #  __  __      _      ___   _   _ 
 # |  \/  |    / \    |_ _| | \ | |
 # | |\/| |   / _ \    | |  |  \| |
@@ -908,11 +907,16 @@ class Main():
         klustr_dao = PostgreSQLKlustRDAO(credential)
         self.source_data_widget = KlustrMain(self, klustr_dao)
         self.source_data_widget.window_title = 'Kluster App'
-        self.knn = KNN(3,3) ############################### 
+        self.knn = KNN(3, 3) ###############################
         self.shape_analyzer = ShapeAnalyzer(None, None)
 
     def new_dataset(self, dataset):
-        pass
+        self.knn.clear_dataset()
+        # pour chaque élément du dataset (for each):
+        #   label = label de l'élément
+        #   ndarray_shape = fct utilitaire du prof -> ndarray_from_qimage_argb32(img)
+        #   knn.add_training_point(self.shape_analyzer.analyze(ndarray_shape), label)
+        #   ajout du point sur grosse plotte libre?
 
     def classify(self, chosen_image, distance):
         # self.knn.k_constant = new_k_constant  # setter du k_constant (la distribution)
