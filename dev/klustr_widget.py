@@ -781,8 +781,10 @@ class KlustR3DModel(QWidget):
         #   marker = self.markers[random(0, (len(self.markers)-1)]
         #   ax.scatter(self._knn.training_data[:,0], self._knn.training_data[:,1], self._knn.training_data[:,2], marker='o', color='r')
 
-        #if self._knn.point_classifie is not None:
-        #    ax.scatter(self._knn.point_classifie.x, self._knn.point_classifie.y, self._knn.point_classifie.z, marker='p', color='') ###########################################
+
+        # if self._knn.point_classified is not None:
+        #     ax.scatter(self._knn.point_classified.x, self._knn.point_classified.y, self._knn.point_classified.z, marker='p', color='') ###########################################
+
 
         ax.set_title(self.title)
         ax.set_xlabel(self.x_label)
@@ -887,7 +889,6 @@ class KlustRDataAnalyzeViewWidget(QWidget):
         
         self.single_test_widget.update_text(answer)
 
-
 #  __  __      _      ___   _   _ 
 # |  \/  |    / \    |_ _| | \ | |
 # | |\/| |   / _ \    | |  |  \| |
@@ -901,8 +902,8 @@ class KlustrMain(QWidget):
         self.tabs = QTabWidget()
         self.tab1 = KlustRDataSourceViewWidget(klustr_dao)
         self.tab2 = KlustRDataAnalyzeViewWidget(controleur, klustr_dao)
-        self.tabs.add_tab(self.tab1,"Tab 1")
-        self.tabs.add_tab(self.tab2,"Tab 2")
+        self.tabs.add_tab(self.tab1, "Tab 1")
+        self.tabs.add_tab(self.tab2, "Tab 2")
 
 class Main():
     def __init__(self):
@@ -910,11 +911,16 @@ class Main():
         klustr_dao = PostgreSQLKlustRDAO(credential)
         self.source_data_widget = KlustrMain(self, klustr_dao)
         self.source_data_widget.window_title = 'Kluster App'
-        self.knn = KNN(3,3) ############################### 
-        self.shape_analyzer = ShapeAnalyzer(None,None)
+        self.knn = KNN(3, 3) ###############################
+        self.shape_analyzer = ShapeAnalyzer(None, None)
 
     def new_dataset(self, dataset):
-        pass
+        self.knn.clear_dataset()
+        # pour chaque élément du dataset (for each):
+        #   label = label de l'élément
+        #   ndarray_shape = fct utilitaire du prof -> ndarray_from_qimage_argb32(img)
+        #   knn.add_training_point(self.shape_analyzer.analyze(ndarray_shape), label)
+        #   ajout du point sur grosse plotte libre?
 
     def classify(self, chosen_image, distance):
         # self.knn.k_constant = new_k_constant  # setter du k_constant (la distribution)

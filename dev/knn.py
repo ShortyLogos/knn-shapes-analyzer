@@ -45,22 +45,21 @@ class KNN:
 
     def get_most_common_tag(self, tags):
         # https://stackoverflow.com/questions/19909167/how-to-find-most-frequent-string-element-in-numpy-ndarray
-        tags_unique, pos = np.unique(tags.T, return_inverse=True)  # Finds all unique elements and their positions
-        counts = np.bincount(pos)  # Count the number of each unique element
-        position = counts.argmax()  # Va trouver la position de l'élément le plus commun
+        tags_unique, pos = np.unique(tags.T, return_inverse=True)
+        counts = np.bincount(pos)
+        position = counts.argmax()
         return tags_unique[position]
 
     # Retourne le tableau des k voisins
     def get_k_neighbours(self, unclassified_point):
         distances = self.distances_from_point(unclassified_point)
-        k_neighbours_distances_and_tags = distances[distances[:,0].argsort()][self.__k_constant:]  # https://stackoverflow.com/questions/16817948/i-have-need-the-n-minimum-index-values-in-a-numpy-array  # À TESTER
+        k_neighbours_distances_and_tags = distances[distances[:,0].argsort()][:self.__k_constant] # A tester
         return k_neighbours_distances_and_tags
 
     # Retourne le tableau des tags des k voisins
     def get_k_neighbours_tags(self, k_neighbours):
-        k_neighbours_tags = k_neighbours[-1, :]  # https://stackoverflow.com/questions/17710672/create-2-dimensional-array-with-2-one-dimensional-array
-        # on crée un nouveau tableau qui va chercher les tags de notre autre tableau
-        tags_occurences = self.__k_tags
+        tags_index = k_neighbours[:, -1].astype(int)
+        k_neighbours_tags = self.k_tags[tags_index]
         return k_neighbours_tags
 
     def distances_from_point(self, unclassified_point):
