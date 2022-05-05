@@ -103,7 +103,7 @@ if __name__ == '__main__':
     metrics3 = np.array(metrics3)
     point = [0.2, 0.4, 0.2]
     point = np.array(point)
-    knn = KNN(3, 1)
+    knn = KNN(3, 3)
     knn.add_training_point(metrics1, "triangle")
     knn.add_training_point(metrics2, "carré")
     knn.add_training_point(metrics2, "triangle")
