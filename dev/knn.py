@@ -45,9 +45,9 @@ class KNN:
 
     def get_most_common_tag(self, tags):
         # https://stackoverflow.com/questions/19909167/how-to-find-most-frequent-string-element-in-numpy-ndarray
-        tags_unique, pos = np.unique(tags.T, return_inverse=True)  # Finds all unique elements and their positions
-        counts = np.bincount(pos)  # Count the number of each unique element
-        position = counts.argmax()  # Va trouver la position de l'élément le plus commun
+        tags_unique, pos = np.unique(tags.T, return_inverse=True)
+        counts = np.bincount(pos)
+        position = counts.argmax() 
         return tags_unique[position]
 
     # Retourne le tableau des k voisins

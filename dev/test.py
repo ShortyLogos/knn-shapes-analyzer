@@ -103,13 +103,12 @@ if __name__ == '__main__':
     metrics3 = np.array(metrics3)
     point = [0.2, 0.4, 0.2]
     point = np.array(point)
-    knn = KNN(3, 2)
+    knn = KNN(3, 1)
     knn.add_training_point(metrics1, "triangle")
     knn.add_training_point(metrics2, "carré")
     knn.add_training_point(metrics2, "triangle")
-    #print(knn.dataset)
-    knn.classify(point)
-    print("On pratique le debugger")
+    rep = knn.classify(point)
+    print(rep)
 
 
 
