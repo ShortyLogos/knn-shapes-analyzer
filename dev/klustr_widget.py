@@ -39,7 +39,7 @@ from klustr_dao import PostgreSQLKlustRDAO
 from klustr_utils import qimage_argb32_from_png_decoding
 
 from PySide6 import QtCore, QtGui, QtWidgets
-from PySide6.QtCore import Qt, QSize
+from PySide6.QtCore import Qt, QSize,QTimer
 from PySide6.QtCore import Signal, Slot, QTimer
 from PySide6.QtWidgets import (QApplication, QWidget, QListView, QTreeView,
                                QGroupBox, QLabel, QCheckBox, QPlainTextEdit,
@@ -692,6 +692,7 @@ class KlustRSingleAnalyzeModel(QWidget):
 
 
 class KlustRKnnParamsWidget(QWidget):
+    value_changed = Signal(str)
     def __init__(self):
         super().__init__()
         self.knn = "knn"
@@ -705,20 +706,35 @@ class KlustRKnnParamsWidget(QWidget):
         k_layout.add_widget(self.__k_label)
         self.__k_scrollbar = QScrollBar()
         self.__k_scrollbar.orientation = Qt.Horizontal
+        self.__k_scrollbar.set_range(1,5)
+        self.__k_scrollbar.value=0
         k_layout.add_widget(self.__k_scrollbar)
         general_layout.add_widget(k_widget)
+        self.__k_scrollbar.valueChanged.connect(self.__update_knn_param)
+
 
         #K minimum toujours 1, maximum c'est racine carré du nbr de pop / nbr categorie et le centre est / 2 ou quelque chose du genre
         #dist c'est un hypothénuse d'une genre de normalisation entre tes n axes de ton knn 
 
         dist_widget = QWidget()
         dist_layout = QHBoxLayout(dist_widget)
-        self.__dist_label = QLabel("Max dist = 0.30")
+        self.__dist_label = QLabel("Max dist = 0.3")
         dist_layout.add_widget(self.__dist_label)
         self.__dist_scrollbar = QScrollBar()
         self.__dist_scrollbar.orientation = Qt.Horizontal
+        self.__dist_scrollbar.set_range(1, 9)
+        self.__dist_scrollbar.value = 3
         dist_layout.add_widget(self.__dist_scrollbar)
         general_layout.add_widget(dist_widget)
+        self.__dist_scrollbar.valueChanged.connect(self.__update_distance)
+
+
+    @Slot()
+    def __update_distance(self):
+        self.__dist_label.set_text("Max dist = "+str(self.__dist_scrollbar.value/10))
+    @Slot()
+    def __update_knn_param(self):
+         self.__k_label.set_text("k = "+str(self.__k_scrollbar.value))
 
 class KlustR3DModel(QWidget):
     def __init__(self, knn, title, xLabel, yLabel, zLabel):
@@ -896,7 +912,7 @@ class KNN:
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    credential = PostgreSQLCredential(password='AAAaaa111')
+    credential = PostgreSQLCredential(password='ASDasd123')
     klustr_dao = PostgreSQLKlustRDAO(credential)
     knn = KNN(3)
     source_data_widget = KlustrMain(knn, klustr_dao)
