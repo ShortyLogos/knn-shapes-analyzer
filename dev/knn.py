@@ -53,7 +53,8 @@ class KNN:
     # Retourne le tableau des k voisins
     def get_k_neighbours(self, unclassified_point):
         distances = self.distances_from_point(unclassified_point)
-        k_neighbours_distances_and_tags = distances[distances[:,0].argsort()][self.__k_constant:]  # https://stackoverflow.com/questions/16817948/i-have-need-the-n-minimum-index-values-in-a-numpy-array  # À TESTER
+        print(distances[distances[:,0].argsort()][:self.__k_constant])
+        k_neighbours_distances_and_tags = distances[distances[:,0].argsort()][-self.__k_constant:] # A tester
         return k_neighbours_distances_and_tags
 
     # Retourne le tableau des tags des k voisins
