@@ -583,8 +583,8 @@ class KlustRDatasetAnalyzeModel(QWidget):
 
     def __init__(self):
         super().__init__()
-        self.general_widget = QGroupBox("Dataset")
-        general_layout = QVBoxLayout(self.general_widget)
+        self.__general_widget = QGroupBox("Dataset")
+        general_layout = QVBoxLayout(self.__general_widget)
 
         self.dataset_combo_box = QComboBox()
         self.dataset_combo_box.currentIndexChanged.connect(self.__selection_dataset)
@@ -625,6 +625,10 @@ class KlustRDatasetAnalyzeModel(QWidget):
         for dataset in klustr_dao.available_datasets:
             self.dataset_combo_box.add_item(dataset[1], dataset)
 
+    @property
+    def general_widget(self):
+        return self.__general_widget
+
     @Slot()
     def __selection_dataset(self,choix):
         chosen_dataset = self.dataset_combo_box.item_data(choix)
@@ -642,8 +646,8 @@ class KlustRSingleAnalyzeModel(QWidget):
     
     def __init__(self):
         super().__init__()
-        self.general_widget = QGroupBox("Single test")
-        general_layout = QVBoxLayout(self.general_widget)
+        self.__general_widget = QGroupBox("Single test")
+        general_layout = QVBoxLayout(self.__general_widget)
         
         self.single_test_combo_box = QComboBox()
         self.single_test_combo_box.add_items(["item1", "item2", "item3"])
@@ -675,6 +679,10 @@ class KlustRSingleAnalyzeModel(QWidget):
     def update_text(self, answer):
         self.classify_result.text = answer
 
+    @property
+    def general_widget(self):
+        return self.__general_widget
+
     @Slot()
     def __selection_img(self, choix):
         if choix != -1: 
@@ -697,10 +705,10 @@ class KlustRKnnParamsWidget(QWidget):
     value_changed = Signal(str)
     def __init__(self):
         super().__init__()
-        self.knn = "knn"
-        self.dist = "dist"
-        self.general_widget = QGroupBox("Knn parameters")
-        general_layout = QVBoxLayout(self.general_widget)
+        self.__knn = "knn"
+        self.__dist = "dist"
+        self.__general_widget = QGroupBox("Knn parameters")
+        general_layout = QVBoxLayout(self.__general_widget)
 
         k_widget = QWidget()
         k_layout = QHBoxLayout(k_widget)
@@ -730,11 +738,22 @@ class KlustRKnnParamsWidget(QWidget):
         general_layout.add_widget(dist_widget)
         self.__dist_scrollbar.valueChanged.connect(self.__update_distance)
 
+    @property
+    def knn(self):
+        return self.__knn
+
+    @property
+    def dist(self):
+        return self.__dist
+
+    @property
+    def general_widget(self):
+        return self.__general_widget
 
     @Slot()
     def __update_distance(self):
-
         self.__dist_label.set_text("Max dist = "+str(self.__dist_scrollbar.value/10))
+        
     @Slot()
     def __update_knn_param(self):
         #######ici je dois set self.__k_scrollbar.set_range(1,max_range) avec squareroot(image count)/2 comment get image count?
@@ -743,14 +762,14 @@ class KlustRKnnParamsWidget(QWidget):
 class KlustR3DModel(QWidget):
     def __init__(self, knn, title, xLabel, yLabel, zLabel):
         super().__init__()
-        self.general_widget = QLabel()
-        self._knn = knn
+        self.__general_widget = QLabel()
+        self.__knn = knn
         
-        self.title = title
-        self.x_label = xLabel
-        self.y_label = yLabel
-        self.z_label = zLabel
-        self.markers = ('o', '.', 'v', '2', '8', 's', 'X', 'D', '*', 'H')
+        self._title = title
+        self._x_label = xLabel
+        self._y_label = yLabel
+        self._z_label = zLabel
+        self._markers = ('o', '.', 'v', '2', '8', 's', 'X', 'D', '*', 'H')
 
         self._elevation = 30
         self._azimuth = 45
@@ -759,7 +778,10 @@ class KlustR3DModel(QWidget):
         self._timer = QtCore.QTimer()
         self._timer.timeout.connect(self._rotate)
         self._timer.start(1000)
-        
+
+    @property
+    def general_widget(self):
+        return self.__general_widget
 
     @Slot()
     def _rotate(self):
@@ -778,15 +800,15 @@ class KlustR3DModel(QWidget):
         #for shapes in dataset:
         #   color = rgb(random(0,1), random(0,1), random(0,1))
         #   marker = self.markers[random(0, (len(self.markers)-1)]
-        #   ax.scatter(self._knn.training_data[:,0], self._knn.training_data[:,1], self._knn.training_data[:,2], marker='o', color='r')
+        #   ax.scatter(self.__knn.training_data[:,0], self.__knn.training_data[:,1], self.__knn.training_data[:,2], marker='o', color='r')
 
-        if self._knn.point_classifie is not None:
-            ax.scatter(self._knn.point_classifie.x, self._knn.point_classifie.y, self._knn.point_classifie.z, marker='p', color='') ###########################################
+        if self.__knn.point_classifie is not None:
+            ax.scatter(self.__knn.point_classifie.x, self.__knn.point_classifie.y, self.__knn.point_classifie.z, marker='p', color='') ###########################################
 
-        ax.set_title(self.title)
-        ax.set_xlabel(self.x_label)
-        ax.set_ylabel(self.y_label)
-        ax.set_zlabel(self.z_label)
+        ax.set_title(self._title)
+        ax.set_xlabel(self._x_label)
+        ax.set_ylabel(self._y_label)
+        ax.set_zlabel(self._z_label)
 
         ax.view_init(self._elevation, self._azimuth)
 
@@ -794,7 +816,7 @@ class KlustR3DModel(QWidget):
         w, h = canvas.get_width_height()
         img = QImage(canvas.buffer_rgba(), w, h, w * 4, QImage.Format_ARGB32)
 
-        self.general_widget.set_pixmap(QtGui.QPixmap.from_image(img))
+        self.__general_widget.set_pixmap(QtGui.QPixmap.from_image(img))
 
 
 #  _  __  _                 _     ____    ____            _                _                      _                       __     __  _                    __        __  _       _                  _   
@@ -807,16 +829,16 @@ class KlustR3DModel(QWidget):
 class KlustRDataAnalyzeViewWidget(QWidget):
     def __init__(self, controleur, klustr_dao, parent=None):
         super().__init__(parent)
-        self._klustr_dao = klustr_dao
-        self._controleur = controleur
-        if self._klustr_dao.is_available:
+        self.__klustr_dao = klustr_dao
+        self.__controleur = controleur
+        if self.__klustr_dao.is_available:
             self._setup_gui()
             self._setup_models()
         else:
             self._setup_invalid_gui()
 
     def _setup_models(self):
-        self.dataset_widget.update(self._klustr_dao)
+        self.__dataset_widget.update(self.__klustr_dao)
 
     def _setup_invalid_gui(self):
         not_available = QLabel('Data access unavailable')
@@ -828,15 +850,15 @@ class KlustRDataAnalyzeViewWidget(QWidget):
 
     def _setup_gui(self):
         #--------- Dataset ---------#
-        self.dataset_widget = KlustRDatasetAnalyzeModel()
-        self.dataset_widget.dataset_selected.connect(self._update_from_selection)
+        self.__dataset_widget = KlustRDatasetAnalyzeModel()
+        self.__dataset_widget.dataset_selected.connect(self._update_from_selection)
 
         #--------- Knn params ---------#
-        self.knn_parameters_widget = KlustRKnnParamsWidget()
+        self.__knn_parameters_widget = KlustRKnnParamsWidget()
 
         #--------- Single_test ---------#
-        self.single_test_widget = KlustRSingleAnalyzeModel()
-        self.single_test_widget.classify.connect(self._classify)
+        self.__single_test_widget = KlustRSingleAnalyzeModel()
+        self.__single_test_widget.classify.connect(self._classify)
 
         #--------- About Button ---------#
         bouton_about = QPushButton("About")
@@ -845,17 +867,17 @@ class KlustRDataAnalyzeViewWidget(QWidget):
         #--------- Data General layout ---------#
         view_data_widget = QWidget()
         view_data_layout = QVBoxLayout(view_data_widget)
-        view_data_layout.add_widget(self.dataset_widget.general_widget)
-        view_data_layout.add_widget(self.knn_parameters_widget.general_widget)
-        view_data_layout.add_widget(self.single_test_widget.general_widget)
+        view_data_layout.add_widget(self.__dataset_widget.general_widget)
+        view_data_layout.add_widget(self.__knn_parameters_widget.general_widget)
+        view_data_layout.add_widget(self.__single_test_widget.general_widget)
         view_data_layout.add_widget(bouton_about)
 
         #--------- 3D General Layout ---------#
         view_graphic_widget = QWidget()
         view_graphic_layout = QVBoxLayout(view_graphic_widget)
-        self.graphic_widget = KlustR3DModel(self._controleur,'KLUSTR KNN CLASSIFICATION', 'X Label', 'Y Label', 'Z Label')
+        self.__graphic_widget = KlustR3DModel(self.__controleur,'KLUSTR KNN CLASSIFICATION', 'X Label', 'Y Label', 'Z Label')
         view_graphic_layout.alignment = Qt.AlignHCenter #######################################################################
-        view_graphic_layout.add_widget(self.graphic_widget.general_widget)
+        view_graphic_layout.add_widget(self.__graphic_widget.general_widget)
 
         #--------- Main Layout ---------#
         layout = QHBoxLayout(self)
@@ -872,18 +894,18 @@ class KlustRDataAnalyzeViewWidget(QWidget):
 
     @Slot()
     def _update_from_selection(self, chosen_dataset):
-        dataset = self._klustr_dao.labels_from_dataset(chosen_dataset)
-        self.single_test_widget.update_from_dataset(dataset)
-        self._controleur.new_dataset(dataset) ###################################################################################### dataset au complet
+        dataset = self.__klustr_dao.labels_from_dataset(chosen_dataset)
+        self.__single_test_widget.update_from_dataset(dataset)
+        self.__controleur.new_dataset(dataset) ###################################################################################### dataset au complet
 
     @Slot()
     def _classify(self, chosen_image):
-        chosen_image = self.single_test_widget.name_image ######################################################################
-        knn = self.knn_parameters_widget.knn
-        dist = self.knn_parameters_widget.dist
-        answer = self._controleur.classify(chosen_image, knn, dist) ####################################################################
+        chosen_image = self.__single_test_widget.name_image ######################################################################
+        knn = self.__knn_parameters_widget.knn
+        dist = self.__knn_parameters_widget.dist
+        answer = self.__controleur.classify(chosen_image, knn, dist) ####################################################################
         
-        self.single_test_widget.update_text(answer)
+        self.__single_test_widget.update_text(answer)
 
 
 #  __  __      _      ___   _   _ 
@@ -910,11 +932,12 @@ class Main():
         self.source_data_widget.window_title = 'Kluster App'
         self.knn = KNN(3,3) ############################### 
         self.shape_analyzer = ShapeAnalyzer(None,None)
+        self.point_classifie = None
 
     def new_dataset(self, dataset):
         pass
 
-    def classify(self, chosen_image, k_constant):
+    def classify(self, chosen_image, k_constant, dist):
         self.knn.k_constant(k_constant) # setter du k_constant (la distribution)
         unclassified_point = self.shape_analyzer.analyze(chosen_image)
         classe = self.knn.classify(unclassified_point)
