@@ -58,9 +58,8 @@ class KNN:
 
     # Retourne le tableau des tags des k voisins
     def get_k_neighbours_tags(self, k_neighbours):
-        k_neighbours_tags = k_neighbours[-1, :]  # https://stackoverflow.com/questions/17710672/create-2-dimensional-array-with-2-one-dimensional-array
-        # on crée un nouveau tableau qui va chercher les tags de notre autre tableau
-        tags_occurences = self.__k_tags
+        tags_index = k_neighbours[:, -1].astype(int)
+        k_neighbours_tags = self.k_tags[tags_index]
         return k_neighbours_tags
 
     def distances_from_point(self, unclassified_point):
