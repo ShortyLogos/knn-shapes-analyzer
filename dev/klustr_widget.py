@@ -667,7 +667,7 @@ class KlustRSingleAnalyzeModel(QWidget):
         self.single_test_combo_box.clear()
         sb.unblock()
         for image_label in dataset:
-            self.single_test_combo_box.add_item(image_label[1], image_label)
+            self.single_test_combo_box.add_item(image_label[3], image_label)
     
     def update_from_dataset(self, dataset):
         self._update(dataset)
@@ -677,9 +677,10 @@ class KlustRSingleAnalyzeModel(QWidget):
 
     @Slot()
     def __selection_img(self, choix):
-        if choix != -1: 
+        if choix != -1:
+
             self.name_image = self.single_test_combo_box.item_text(choix)
-            image = self.single_test_combo_box.item_data(choix)[2]
+            image = self.single_test_combo_box.item_data(choix)[6]
             image = qimage_argb32_from_png_decoding(image)
             self.chosen_image = image
             image_item = QPixmap.from_image(image)
@@ -780,8 +781,8 @@ class KlustR3DModel(QWidget):
         #   marker = self.markers[random(0, (len(self.markers)-1)]
         #   ax.scatter(self._knn.training_data[:,0], self._knn.training_data[:,1], self._knn.training_data[:,2], marker='o', color='r')
 
-        if self._knn.point_classifie is not None:
-            ax.scatter(self._knn.point_classifie.x, self._knn.point_classifie.y, self._knn.point_classifie.z, marker='p', color='') ###########################################
+        #if self._knn.point_classifie is not None:
+        #    ax.scatter(self._knn.point_classifie.x, self._knn.point_classifie.y, self._knn.point_classifie.z, marker='p', color='') ###########################################
 
         ax.set_title(self.title)
         ax.set_xlabel(self.x_label)
@@ -872,9 +873,10 @@ class KlustRDataAnalyzeViewWidget(QWidget):
 
     @Slot()
     def _update_from_selection(self, chosen_dataset):
-        dataset = self._klustr_dao.labels_from_dataset(chosen_dataset)
-        self.single_test_widget.update_from_dataset(dataset)
-        self._controleur.new_dataset(dataset) ###################################################################################### dataset au complet
+        dataset_train = self._klustr_dao.image_from_dataset(chosen_dataset,True)
+        dataset_test = self._klustr_dao.image_from_dataset(chosen_dataset,False)
+        self.single_test_widget.update_from_dataset(dataset_test)
+        self._controleur.new_dataset(dataset_train) ###################################################################################### dataset au complet
 
     @Slot()
     def _classify(self, chosen_image):
@@ -904,7 +906,7 @@ class KlustrMain(QWidget):
 
 class Main():
     def __init__(self):
-        credential = PostgreSQLCredential(password='AAAaaa111')
+        credential = PostgreSQLCredential(password='ASDasd123')
         klustr_dao = PostgreSQLKlustRDAO(credential)
         self.source_data_widget = KlustrMain(self, klustr_dao)
         self.source_data_widget.window_title = 'Kluster App'
