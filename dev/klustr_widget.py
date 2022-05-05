@@ -914,12 +914,11 @@ class Main():
     def new_dataset(self, dataset):
         pass
 
-    def classify(self, chosen_image, knn, dist):
-        self.knn.k_constant(dist) # On va set le k_constant (la distribution)
+    def classify(self, chosen_image, k_constant):
+        self.knn.k_constant(k_constant) # setter du k_constant (la distribution)
         unclassified_point = self.shape_analyzer.analyze(chosen_image)
         classe = self.knn.classify(unclassified_point)
-        # On peut avoir donc retourner le point et sa classe comme ceci [unclassified_point, classe ]
-        return chosen_image + " analysé avec " + knn + "de k et une distance maximale de " + dist
+        return [unclassified_point, classe]
 
 
 if __name__ == '__main__':
