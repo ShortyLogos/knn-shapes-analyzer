@@ -38,8 +38,7 @@ class KNN:
         neighbours = self.get_k_neighbours(unclassified_point)
         tags = self.get_k_neighbours_tags(neighbours)
         tag = self.get_most_common_tag(tags)
-        classified_point = [unclassified_point, tag]
-        return classified_point
+        return tag
 
     def clear_dataset(self):
         self.__dataset = np.empty((0, self.__dimensions + 1), dtype=np.float32)
