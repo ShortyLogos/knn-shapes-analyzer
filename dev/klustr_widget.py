@@ -38,7 +38,7 @@ from knn import KNN
 from shapeanalyzer import ShapeAnalyzer
 from db_credential import PostgreSQLCredential
 from klustr_dao import PostgreSQLKlustRDAO
-from klustr_utils import qimage_argb32_from_png_decoding
+from klustr_utils import qimage_argb32_from_png_decoding, ndarray_from_qimage_argb32
 
 from PySide6 import QtCore, QtGui, QtWidgets
 from PySide6.QtCore import Qt, QSize,QTimer
@@ -909,18 +909,26 @@ class Main():
     def __init__(self):
         credential = PostgreSQLCredential(password='ASDasd123')
         klustr_dao = PostgreSQLKlustRDAO(credential)
+        self.training_data = []
+        self.knn = KNN(3, 3)  ###############################
+        self.shape_analyzer = ShapeAnalyzer(None, 0.2)
         self.source_data_widget = KlustrMain(self, klustr_dao)
         self.source_data_widget.window_title = 'Kluster App'
-        self.knn = KNN(3, 3) ###############################
-        self.shape_analyzer = ShapeAnalyzer(None, None)
+
+
+
 
     def new_dataset(self, dataset):
         self.knn.clear_dataset()
-        # pour chaque élément du dataset (for each):
-        #   label = label de l'élément
-        #   ndarray_shape = fct utilitaire du prof -> ndarray_from_qimage_argb32(img)
-        #   knn.add_training_point(self.shape_analyzer.analyze(ndarray_shape), label)
-        #   ajout du point sur grosse plotte libre?
+        self.training_data.clear()
+        for image in dataset:
+            label = image[1]
+            img_temp =  qimage_argb32_from_png_decoding(image[6])
+            ndarray = ndarray_from_qimage_argb32(img_temp)
+            point=self.shape_analyzer.analyze(ndarray)
+            self.knn.add_training_point(point, label)
+            self.training_data.append(point)
+
 
     def classify(self, chosen_image, distance):
         # self.knn.k_constant = new_k_constant  # setter du k_constant (la distribution)
