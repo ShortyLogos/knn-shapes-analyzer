@@ -30,10 +30,12 @@
 # Cette dernière approche serait plus complexe et longue à mettre en place mais 
 # beaucoup plus efficace et, surtout, plus modulaire.
 
+from re import S
 import sys
 
 import numpy as np ###################################################################################
-
+from knn import KNN
+from shapeanalyzer import ShapeAnalyzer
 from db_credential import PostgreSQLCredential
 from klustr_dao import PostgreSQLKlustRDAO
 from klustr_utils import qimage_argb32_from_png_decoding
@@ -906,13 +908,17 @@ class Main():
         klustr_dao = PostgreSQLKlustRDAO(credential)
         self.source_data_widget = KlustrMain(self, klustr_dao)
         self.source_data_widget.window_title = 'Kluster App'
-        self.point_classifie = None
+        self.knn = KNN(3,3) ############################### 
+        self.shape_analyzer = ShapeAnalyzer(None,None)
 
     def new_dataset(self, dataset):
         pass
 
     def classify(self, chosen_image, knn, dist):
-        #self.point_classifie = modele.classify(chosen_image, knn, dist)
+        self.knn.k_constant(dist) # On va set le k_constant (la distribution)
+        unclassified_point = self.shape_analyzer.analyze(chosen_image)
+        classe = self.knn.classify(unclassified_point)
+        # On peut avoir donc retourner le point et sa classe comme ceci [unclassified_point, classe ]
         return chosen_image + " analysé avec " + knn + "de k et une distance maximale de " + dist
 
 
