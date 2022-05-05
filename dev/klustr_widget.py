@@ -742,10 +742,10 @@ class KlustRKnnParamsWidget(QWidget):
          self.__k_label.set_text("k = "+str(self.__k_scrollbar.value))
 
 class KlustR3DModel(QWidget):
-    def __init__(self, knn, title, xLabel, yLabel, zLabel):
+    def __init__(self, controleur, title, xLabel, yLabel, zLabel):
         super().__init__()
         self.general_widget = QLabel()
-        self._knn = knn
+        self._controleur = controleur
         
         self.title = title
         self.x_label = xLabel
@@ -776,10 +776,9 @@ class KlustR3DModel(QWidget):
         ax = figure.add_subplot(111, projection='3d')
         ax.set_proj_type('persp')
 
-        #for shapes in dataset:
-        #   color = rgb(random(0,1), random(0,1), random(0,1))
-        #   marker = self.markers[random(0, (len(self.markers)-1)]
-        #   ax.scatter(self._knn.training_data[:,0], self._knn.training_data[:,1], self._knn.training_data[:,2], marker='o', color='r')
+        #color = rgb(random(0,1), random(0,1), random(0,1))
+        #marker = self.markers[random(0, (len(self.markers)-1))]
+        ax.scatter(self._controleur.knn.dataset[:, 0], self._controleur.knn.dataset[:,1], self._controleur.knn.dataset[:,2], marker='o', color='r')
 
 
         # if self._knn.point_classified is not None:
@@ -907,11 +906,11 @@ class KlustrMain(QWidget):
 
 class Main():
     def __init__(self):
-        credential = PostgreSQLCredential(password='ASDasd123')
+        credential = PostgreSQLCredential(password='AAAaaa111')
         klustr_dao = PostgreSQLKlustRDAO(credential)
         self.training_data = []
         self.knn = KNN(3, 3)  ###############################
-        self.shape_analyzer = ShapeAnalyzer(None, 0.2)
+        self.shape_analyzer = ShapeAnalyzer(None, 0.15)
         self.source_data_widget = KlustrMain(self, klustr_dao)
         self.source_data_widget.window_title = 'Kluster App'
 
@@ -928,6 +927,7 @@ class Main():
             point=self.shape_analyzer.analyze(ndarray)
             self.knn.add_training_point(point, label)
             self.training_data.append(point)
+        print(self.knn.dataset)
 
 
     def classify(self, chosen_image, distance):
