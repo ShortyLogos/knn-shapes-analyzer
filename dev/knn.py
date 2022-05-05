@@ -47,13 +47,13 @@ class KNN:
         # https://stackoverflow.com/questions/19909167/how-to-find-most-frequent-string-element-in-numpy-ndarray
         tags_unique, pos = np.unique(tags.T, return_inverse=True)
         counts = np.bincount(pos)
-        position = counts.argmax() 
+        position = counts.argmax()
         return tags_unique[position]
 
     # Retourne le tableau des k voisins
     def get_k_neighbours(self, unclassified_point):
         distances = self.distances_from_point(unclassified_point)
-        k_neighbours_distances_and_tags = distances[distances[:,0].argsort()][-self.__k_constant:] # A tester
+        k_neighbours_distances_and_tags = distances[distances[:,0].argsort()][:self.__k_constant] # A tester
         return k_neighbours_distances_and_tags
 
     # Retourne le tableau des tags des k voisins
