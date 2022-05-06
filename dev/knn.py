@@ -9,6 +9,15 @@ class KNN:
         self.__dataset = np.empty((0, self.__dimensions + 1), dtype=np.float32)
         self.__k_constant = k_constant
         self.__k_tags = np.empty(0, dtype=np.str_)
+        self.__distance_max = 0
+
+    @property
+    def distance_max(self):
+        return self.__distance_max
+
+    @distance_max.setter
+    def distance_max(self, distance):
+        self.__distance_max = distance
 
     @property
     def dataset(self):
@@ -34,6 +43,9 @@ class KNN:
         self.__k_tags = np.append(self.__k_tags, tag)
         # self.__k_tags.append(tag)
 
+    def check_distance_max(self):
+        pass
+
     def classify(self, unclassified_point):
         neighbours = self.get_k_neighbours(unclassified_point)
         tags = self.get_k_neighbours_tags(neighbours)
@@ -44,7 +56,6 @@ class KNN:
         self.__dataset = np.empty((0, self.__dimensions + 1), dtype=np.float32)
 
     def get_most_common_tag(self, tags):
-        # https://stackoverflow.com/questions/19909167/how-to-find-most-frequent-string-element-in-numpy-ndarray
         tags_unique, pos = np.unique(tags.T, return_inverse=True)
         counts = np.bincount(pos)
         position = counts.argmax()
@@ -53,7 +64,7 @@ class KNN:
     # Retourne le tableau des k voisins
     def get_k_neighbours(self, unclassified_point):
         distances = self.distances_from_point(unclassified_point)
-        k_neighbours_distances_and_tags = distances[distances[:,0].argsort()][:self.__k_constant] # A tester
+        k_neighbours_distances_and_tags = distances[distances[:, 0].argsort()][:self.__k_constant]
         return k_neighbours_distances_and_tags
 
     # Retourne le tableau des tags des k voisins
