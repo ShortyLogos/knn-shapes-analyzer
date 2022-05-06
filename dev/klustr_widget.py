@@ -32,6 +32,7 @@
 
 import sys
 import numpy
+import numpy as np
 
 from knn import KNN
 from shapeanalyzer import ShapeAnalyzer
@@ -639,7 +640,7 @@ class KlustRDatasetAnalyzeModel(QWidget):
         self.dataset_selected.emit(chosen_dataset[1])
 
 class KlustRSingleAnalyzeModel(QWidget):
-    classify = Signal(str)
+    classify = Signal(np.ndarray)
     
     def __init__(self):
         super().__init__()
@@ -692,7 +693,8 @@ class KlustRSingleAnalyzeModel(QWidget):
         if self.chosen_image is None:
             self.classify_result.text = "Not Classified"
         else:
-            self.classify.emit(self.chosen_image)
+            image = ndarray_from_qimage_argb32(self.chosen_image)
+            self.classify.emit(image)
 
 
 class KlustRKnnParamsWidget(QWidget):
@@ -746,6 +748,7 @@ class KlustR3DModel(QWidget):
         super().__init__()
         self.general_widget = QLabel()
         self._controleur = controleur
+        self._point_analyse = None
         
         self.title = title
         self.x_label = xLabel
@@ -761,6 +764,13 @@ class KlustR3DModel(QWidget):
         self._timer.timeout.connect(self._rotate)
         self._timer.start(1000)
         
+    @property
+    def point_analyse(self):
+        return self._point_analyse
+
+    @point_analyse.setter
+    def point_analyse(self, value):
+        self._point_analyse = value
 
     @Slot()
     def _rotate(self):
@@ -780,10 +790,8 @@ class KlustR3DModel(QWidget):
         #marker = self.markers[random(0, (len(self.markers)-1))]
         ax.scatter(self._controleur.knn.dataset[:, 0], self._controleur.knn.dataset[:,1], self._controleur.knn.dataset[:,2], marker='o', color='r')
 
-
         # if self._knn.point_classified is not None:
         #     ax.scatter(self._knn.point_classified.x, self._knn.point_classified.y, self._knn.point_classified.z, marker='p', color='') ###########################################
-
 
         ax.set_title(self.title)
         ax.set_xlabel(self.x_label)
@@ -856,8 +864,7 @@ class KlustRDataAnalyzeViewWidget(QWidget):
         #--------- 3D General Layout ---------#
         view_graphic_widget = QWidget()
         view_graphic_layout = QVBoxLayout(view_graphic_widget)
-        self.graphic_widget = KlustR3DModel(self._controleur,'KLUSTR KNN CLASSIFICATION', 'X Label', 'Y Label', 'Z Label')
-        #view_graphic_layout.alignment = Qt.AlignHCenter #######################################################################
+        self.graphic_widget = KlustR3DModel(self._controleur,'KLUSTR KNN CLASSIFICATION', "Pixels On Outer Radius", "Donut Ratio", "Complexity Index")
         view_graphic_layout.add_widget(self.graphic_widget.general_widget)
 
         #--------- Main Layout ---------#
@@ -880,16 +887,15 @@ class KlustRDataAnalyzeViewWidget(QWidget):
         dataset_train = self._klustr_dao.image_from_dataset(chosen_dataset,True)
         dataset_test = self._klustr_dao.image_from_dataset(chosen_dataset,False)
         self.single_test_widget.update_from_dataset(dataset_test)
-        self._controleur.new_dataset(dataset_train) ###################################################################################### dataset au complet
+        self._controleur.new_dataset(dataset_train)
 
     @Slot()
-    def _classify(self, chosen_image):
-        chosen_image = self.single_test_widget.name_image ######################################################################
+    def _classify(self, chosen_image): #type ndarray
         knn = self.knn_parameters_widget.knn
         dist = self.knn_parameters_widget.dist
-        answer = self._controleur.classify(chosen_image, knn, dist) ####################################################################
-        
-        self.single_test_widget.update_text(answer)
+        point, label = self._controleur.classify(chosen_image) ####################################################################
+        self.graphic_widget.point_analyse = point
+        self.single_test_widget.update_text(label)
 
 #  __  __      _      ___   _   _ 
 # |  \/  |    / \    |_ _| | \ | |
@@ -898,7 +904,7 @@ class KlustRDataAnalyzeViewWidget(QWidget):
 # |_|  |_| /_/   \_\ |___| |_| \_|
 #                                 
 
-class KlustrMain(QWidget):  
+class KlustrMain(QWidget):
     def __init__(self, controleur, klustr_dao, parent=None):
         super().__init__(parent)
         self.tabs = QTabWidget()
@@ -909,10 +915,10 @@ class KlustrMain(QWidget):
 
 class Main():
     def __init__(self):
-        credential = PostgreSQLCredential(password='ASDasd123')
+        credential = PostgreSQLCredential(password='AAAaaa111')
         klustr_dao = PostgreSQLKlustRDAO(credential)
         self.training_data = []
-        self.knn = KNN(3, 3)  ###############################
+        self.knn = KNN(3, 3)
         self.shape_analyzer = ShapeAnalyzer(None, 3)
         self.source_data_widget = KlustrMain(self, klustr_dao)
         self.source_data_widget.window_title = 'Kluster App'
@@ -929,11 +935,11 @@ class Main():
             self.knn.add_training_point(point, label)
             self.training_data.append(point)
 
-    def classify(self, chosen_image, distance):
+    def classify(self, chosen_image):
         # self.knn.k_constant = new_k_constant  # setter du k_constant (la distribution)
         unclassified_point = self.shape_analyzer.analyze(chosen_image)
-        classe = self.knn.classify(unclassified_point)
-        return [unclassified_point, classe]
+        label = self.knn.classify(unclassified_point)
+        return [unclassified_point, label]
 
 
 if __name__ == '__main__':
