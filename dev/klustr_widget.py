@@ -30,8 +30,8 @@
 # Cette dernière approche serait plus complexe et longue à mettre en place mais 
 # beaucoup plus efficace et, surtout, plus modulaire.
 
-from re import S
 import sys
+import numpy
 
 import numpy as np ###################################################################################
 from knn import KNN
@@ -51,11 +51,13 @@ from PySide6.QtGui import  (QImage, QPixmap, QIcon, QPainter, QFont, QPen, QBrus
                             QStandardItemModel, QStandardItem,
                             QClipboard)
 
+from __feature__ import snake_case, true_property
+
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 
-from __feature__ import snake_case, true_property 
+
 
 
 
@@ -906,28 +908,25 @@ class KlustrMain(QWidget):
 
 class Main():
     def __init__(self):
-        credential = PostgreSQLCredential(password='AAAaaa111')
+        credential = PostgreSQLCredential(password='ASDasd123')
         klustr_dao = PostgreSQLKlustRDAO(credential)
         self.training_data = []
         self.knn = KNN(3, 3)  ###############################
-        self.shape_analyzer = ShapeAnalyzer(None, 0.15)
+        self.shape_analyzer = ShapeAnalyzer(None, 3)
         self.source_data_widget = KlustrMain(self, klustr_dao)
         self.source_data_widget.window_title = 'Kluster App'
-
-
-
 
     def new_dataset(self, dataset):
         self.knn.clear_dataset()
         self.training_data.clear()
         for image in dataset:
             label = image[1]
-            img_temp =  qimage_argb32_from_png_decoding(image[6])
+            img_temp = qimage_argb32_from_png_decoding(image[6])
             ndarray = ndarray_from_qimage_argb32(img_temp)
-            point=self.shape_analyzer.analyze(ndarray)
+            numpy.set_printoptions(threshold=sys.maxsize)
+            point = self.shape_analyzer.analyze(ndarray)
             self.knn.add_training_point(point, label)
             self.training_data.append(point)
-        print(self.knn.dataset)
 
 
     def classify(self, chosen_image, distance):
