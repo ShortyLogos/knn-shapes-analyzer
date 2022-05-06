@@ -33,7 +33,6 @@
 import sys
 import numpy
 
-import numpy as np ###################################################################################
 from knn import KNN
 from shapeanalyzer import ShapeAnalyzer
 from db_credential import PostgreSQLCredential
@@ -733,7 +732,6 @@ class KlustRKnnParamsWidget(QWidget):
         general_layout.add_widget(dist_widget)
         self.__dist_scrollbar.valueChanged.connect(self.__update_distance)
 
-
     @Slot()
     def __update_distance(self):
 
@@ -852,19 +850,22 @@ class KlustRDataAnalyzeViewWidget(QWidget):
         view_data_layout.add_widget(self.dataset_widget.general_widget)
         view_data_layout.add_widget(self.knn_parameters_widget.general_widget)
         view_data_layout.add_widget(self.single_test_widget.general_widget)
+        view_data_layout.add_stretch()
         view_data_layout.add_widget(bouton_about)
 
         #--------- 3D General Layout ---------#
         view_graphic_widget = QWidget()
         view_graphic_layout = QVBoxLayout(view_graphic_widget)
         self.graphic_widget = KlustR3DModel(self._controleur,'KLUSTR KNN CLASSIFICATION', 'X Label', 'Y Label', 'Z Label')
-        view_graphic_layout.alignment = Qt.AlignHCenter #######################################################################
+        #view_graphic_layout.alignment = Qt.AlignHCenter #######################################################################
         view_graphic_layout.add_widget(self.graphic_widget.general_widget)
 
         #--------- Main Layout ---------#
         layout = QHBoxLayout(self)
         layout.add_widget(view_data_widget)
-        layout.add_widget(view_graphic_widget)        
+        layout.add_stretch()
+        layout.add_widget(view_graphic_widget)
+        layout.add_stretch()        
 
     @Slot()
     def __show_dialog(self):
@@ -927,7 +928,6 @@ class Main():
             point = self.shape_analyzer.analyze(ndarray)
             self.knn.add_training_point(point, label)
             self.training_data.append(point)
-
 
     def classify(self, chosen_image, distance):
         # self.knn.k_constant = new_k_constant  # setter du k_constant (la distribution)
