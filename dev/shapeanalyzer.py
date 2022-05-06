@@ -3,6 +3,7 @@ import math
 
 class ShapeAnalyzer:
     def __init__(self, image=None, outer_radius_buffer=None):
+        self.__metrics_name = ["Pixels On Outer Radius", "Donut Ratio", "Complexity Index"]
         self.__image = image
         self.__outer_radius_buffer = outer_radius_buffer
         if self.image is not None:
