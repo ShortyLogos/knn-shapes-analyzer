@@ -936,7 +936,6 @@ class Main():
             self.training_data.append(point)
 
     def classify(self, chosen_image):
-        # self.knn.k_constant = new_k_constant  # setter du k_constant (la distribution)
         unclassified_point = self.shape_analyzer.analyze(chosen_image)
         label = self.knn.classify(unclassified_point)
         return [unclassified_point, label]
