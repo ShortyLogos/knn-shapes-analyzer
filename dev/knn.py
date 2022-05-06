@@ -9,7 +9,7 @@ class KNN:
         self.__dataset = np.empty((0, self.__dimensions + 1), dtype=np.float32)
         self.__k_constant = k_constant
         self.__k_tags = np.empty(0, dtype=np.str_)
-        self.__distance_max = 0.23
+        self.__distance_max = 5
 
     @property
     def distance_max(self):
