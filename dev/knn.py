@@ -9,7 +9,7 @@ class KNN:
         self.__dataset = np.empty((0, self.__dimensions + 1), dtype=np.float32)
         self.__k_constant = k_constant
         self.__k_tags = np.empty(0, dtype=np.str_)
-        self.__distance_max = 0
+        self.__distance_max = 0.23
 
     @property
     def distance_max(self):
@@ -43,11 +43,9 @@ class KNN:
         self.__k_tags = np.append(self.__k_tags, tag)
         # self.__k_tags.append(tag)
 
-    def check_distance_max(self):
-        pass
-
     def classify(self, unclassified_point):
         neighbours = self.get_k_neighbours(unclassified_point)
+        print(neighbours)
         tags = self.get_k_neighbours_tags(neighbours)
         tag = self.get_most_common_tag(tags)
         return tag
@@ -61,11 +59,14 @@ class KNN:
         position = counts.argmax()
         return tags_unique[position]
 
+    def check_distance_neighbours(self, neighbours):
+        return neighbours[neighbours[:, 0] <= self.__distance_max]
+
     # Retourne le tableau des k voisins
     def get_k_neighbours(self, unclassified_point):
         distances = self.distances_from_point(unclassified_point)
         k_neighbours_distances_and_tags = distances[distances[:, 0].argsort()][:self.__k_constant]
-        return k_neighbours_distances_and_tags
+        return self.check_distance_neighbours(k_neighbours_distances_and_tags)
 
     # Retourne le tableau des tags des k voisins
     def get_k_neighbours_tags(self, k_neighbours):
