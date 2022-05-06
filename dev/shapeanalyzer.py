@@ -2,7 +2,8 @@ import numpy as np
 import math
 
 class ShapeAnalyzer:
-    def __init__(self, image=None, outer_radius_buffer=None):
+    def __init__(self, image=None, outer_radius_buffer=None, perimeter_color=0):
+        self.__perimeter_color = perimeter_color
         self.__metrics_name = ["Pixels On Outer Radius", "Donut Ratio", "Complexity Index"]
         self.__image = image
         self.__outer_radius_buffer = outer_radius_buffer
@@ -118,7 +119,7 @@ class ShapeAnalyzer:
     def perimeter_coordinates(self, image):
         perimetre = self.perimeter_array(image)
         c, r = self.image_coordinates(image)
-        match = perimetre == 1
+        match = perimetre == self.__perimeter_color
         match_col = c[match]
         match_row = r[match]
         return np.stack((match_col, match_row), axis=1)
