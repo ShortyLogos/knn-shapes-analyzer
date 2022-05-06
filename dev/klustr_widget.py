@@ -941,6 +941,14 @@ class Main():
         label = self.knn.classify(unclassified_point)
         return [unclassified_point, label]
 
+    # à utiliser avec le scrollbar de distance
+    def set_max_distance(self, distance):
+        self.knn.distance_max = distance
+
+    # à utiliser avec le scrollbar de knn
+    def set_k_constant(self, k_constant):
+        self.knn.k_constant = k_constant
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
