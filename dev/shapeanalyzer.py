@@ -50,16 +50,16 @@ class ShapeAnalyzer:
         # metrics = ['{0:.3g}'.format(self.pixels_on_perimeter(image)), '{0:.3g}'.format(self.donut_ratio(image)), '{0:.3g}'.format(self.complexity_index(image))]
         return metrics
 
-    #### TROIS MÉTRIQUES ###########################################################################
+    #### TROIS MÉTRIQUES ####
     # nombre de pixels dans une zone du radius circoncis
     def pixels_on_perimeter(self, image):
         distances = self.centroid_distances(image)
         radius = np.max(distances)
-        condition_sommet = distances[
-            np.where(
-                (radius - self.__outer_radius_buffer <= distances) & (distances <= radius + self.__outer_radius_buffer))]
+        # condition_sommet = distances[np.where((radius - self.__outer_radius_buffer <= distances) & (distances <= radius + self.__outer_radius_buffer))]
+        condition_sommet = distances[radius - self.__outer_radius_buffer <= distances]
         # après le calcul, on normalise les données et on les retourne
-        return np.size(condition_sommet) / self.outer_donut_area(image,self.centroid(image),radius)
+        return np.size(condition_sommet) / (np.pi * radius ** 2 - np.pi * (radius - self.__outer_radius_buffer) ** 2)
+        # return np.size(condition_sommet) / self.outer_donut_area(image, self.centroid(image), radius)
 
     # ratio entre le radius externe et interne
     def donut_ratio(self, image):
@@ -80,9 +80,6 @@ class ShapeAnalyzer:
         outer_radius_area_minus_buffer = np.zeros((image.shape[1], image.shape[0])).astype(int)
         self.draw_circle(outer_radius_area_buffer, center, radius + self.__outer_radius_buffer)
         self.draw_circle(outer_radius_area_minus_buffer, center, radius - self.__outer_radius_buffer)
-        print(outer_radius_area_buffer)
-        print(image)
-        print(outer_radius_area_minus_buffer)
         return np.sum(outer_radius_area_buffer) - np.sum(outer_radius_area_minus_buffer)
 
     # calcul du centroïde
@@ -137,11 +134,10 @@ class ShapeAnalyzer:
         return np.sum((centroide - perimetre) ** 2, axis=1) ** 0.5
 
     def draw_circle(self,image, center, radius):
-
         c, r = np.meshgrid(np.arange(image.shape[1]), np.arange(image.shape[0]))
         dist = np.sqrt((r-center[1])**2 + (c-center[0])**2)
         circle = (dist <= radius).astype(np.uint8)
-        image[:,:] = np.logical_or(image[:,:], circle)
+        image[:, :] = np.logical_or(image[:, :], circle)
         
     ## POUR DES TESTS --- A EFFACER!!!!!
     def create_image(self, size):

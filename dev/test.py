@@ -91,9 +91,6 @@ def perimeter(image):
     pass
 
 if __name__ == '__main__':
-    # img_test = create_image((10, 10))
-    # draw_rectangle(img_test, (2, 2), (7, 7))
-    # analyzer = ShapeAnalyzer(img_test, 0.2)
     # print(analyzer.analyze(img_test))
     metrics1 = [0.1, 0.5, 0.3]
     metrics1 = np.array(metrics1)
@@ -117,9 +114,10 @@ if __name__ == '__main__':
     knn.add_training_point(metrics5, "losange")
     knn.add_training_point(metrics6, "cercle")
     rep = knn.classify(point)
-    print(knn.distances_from_point(point))
-    print(rep)
 
-
+    img_test = create_image((150, 150))
+    draw_circle(img_test, (60, 60), 25)
+    analyzer = ShapeAnalyzer(None, 0.2)
+    result = analyzer.pixels_on_perimeter(img_test)
 
 
