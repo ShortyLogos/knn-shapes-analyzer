@@ -77,21 +77,14 @@ class ShapeAnalyzer:
         return ((4 * math.pi * self.area(image))/(self.perimeter(image) ** 2))
     ################################################################################################
 
-    def outer_donut_area(self, image, center, radius):
-        outer_radius_area_buffer = image.copy()
-        outer_radius_area_minus_buffer = np.zeros((image.shape[1], image.shape[0])).astype(int)
-        self.draw_circle(outer_radius_area_buffer, center, radius + self.__outer_radius_buffer)
-        self.draw_circle(outer_radius_area_minus_buffer, center, radius - self.__outer_radius_buffer)
-        return np.sum(outer_radius_area_buffer) - np.sum(outer_radius_area_minus_buffer)
-
     # calcul du centroïde
     def centroid(self, image):
         c, r = np.meshgrid(np.arange(image.shape[1]), np.arange(image.shape[0]))
         return (np.sum(r * image), np.sum(c * image)) / self.area(image)
 
-    # calcul de l'aire
+    # calcul de l'aire (tous les elements qui sont 0)
     def area(self, image):
-        return np.sum(image)
+        return (image.shape[0] * image.shape[1]) - np.sum(image)
 
     # calcul du périmètre de l'image
     def perimeter_array(self, image):
