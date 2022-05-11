@@ -1,6 +1,5 @@
-
 # KlustRDataSourceViewWidget
-# 
+#
 # Exemple d'utilisation :
 #  credential = PostgreSQLCredential(host='jcd-prof-cvm-69b5.aivencloud.com', port=11702, database='data_kit', user='klustr_reader', password='h$2%1?')
 #  klustr_dao = PostgreSQLKlustRDAO(credential)
@@ -9,30 +8,34 @@
 # Après avoir cliqué sur le widget d'image à droite, copie dans le 'clipboard' :
 #   - enter -> copie l'image
 #   - space -> copie le text
-# 
-# 
+#
+#
 # Ce widget reste un exemple pédagogique relativement simple malgré qu'il soit long.
-# 
-# Un mini modèle est mis en place pour chaque structure afin de présenter le 
-# concept Modèle/Vue/Délégué de Qt (même si aucun délégué n'est utilisé). 
+#
+# Un mini modèle est mis en place pour chaque structure afin de présenter le
+# concept Modèle/Vue/Délégué de Qt (même si aucun délégué n'est utilisé).
 # L'information présentée est en lecture seule.
 #
-# L'approche actuelle reste simple car on actualise constamment chacune des 3 vues 
+# L'approche actuelle reste simple car on actualise constamment chacune des 3 vues
 # liés aux 3 modèles. Cette approche n'optimise en rien les requêtes de données.
-# 
+#
 # Une approche mieux adaptée utiliserait :
 #   - un seul modèle plus étayé
-#   - un objet proxy (voir QAbstractProxyModel) afin d'appliquer : 
+#   - un objet proxy (voir QAbstractProxyModel) afin d'appliquer :
 #       - sous-modèle
 #       - filtre
 #       - trie
-# 
-# Cette dernière approche serait plus complexe et longue à mettre en place mais 
+#
+# Cette dernière approche serait plus complexe et longue à mettre en place mais
 # beaucoup plus efficace et, surtout, plus modulaire.
 
 import sys
 import numpy
 import numpy as np
+
+import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 
 from knn import KNN
 from shapeanalyzer import ShapeAnalyzer
@@ -52,10 +55,6 @@ from PySide6.QtGui import  (QImage, QPixmap, QIcon, QPainter, QFont, QPen, QBrus
                             QClipboard)
 
 from __feature__ import snake_case, true_property
-
-import matplotlib.pyplot as plt
-from matplotlib.figure import Figure
-from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 
 
 
@@ -915,11 +914,11 @@ class KlustrMain(QWidget):
 
 class Main():
     def __init__(self):
-        credential = PostgreSQLCredential(password='AAAaaa111')
+        credential = PostgreSQLCredential(password='ASDasd123')
         klustr_dao = PostgreSQLKlustRDAO(credential)
         self.training_data = []
         self.knn = KNN(3, 3)
-        self.shape_analyzer = ShapeAnalyzer(None, 3)
+        self.shape_analyzer = ShapeAnalyzer(None, 6)
         self.source_data_widget = KlustrMain(self, klustr_dao)
         self.source_data_widget.window_title = 'Kluster App'
 
@@ -930,8 +929,8 @@ class Main():
             label = image[1]
             img_temp = qimage_argb32_from_png_decoding(image[6])
             ndarray = ndarray_from_qimage_argb32(img_temp)
-            numpy.set_printoptions(threshold=sys.maxsize)
-            point = self.shape_analyzer.analyze(ndarray)
+            flipped_ndarray = np.logical_not(ndarray).astype(int)
+            point = self.shape_analyzer.analyze(flipped_ndarray)
             self.knn.add_training_point(point, label)
             self.training_data.append(point)
 
