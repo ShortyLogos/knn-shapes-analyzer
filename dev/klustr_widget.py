@@ -30,10 +30,8 @@
 # beaucoup plus efficace et, surtout, plus modulaire.
 
 import sys
-import numpy
 import numpy as np
 
-import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 
@@ -44,7 +42,7 @@ from klustr_dao import PostgreSQLKlustRDAO
 from klustr_utils import qimage_argb32_from_png_decoding, ndarray_from_qimage_argb32
 
 from PySide6 import QtCore, QtGui, QtWidgets
-from PySide6.QtCore import Qt, QSize,QTimer
+from PySide6.QtCore import Qt, QSize, QTimer
 from PySide6.QtCore import Signal, Slot, QTimer
 from PySide6.QtWidgets import (QApplication, QWidget, QListView, QTreeView,
                                QGroupBox, QLabel, QCheckBox, QPlainTextEdit,
@@ -55,10 +53,6 @@ from PySide6.QtGui import  (QImage, QPixmap, QIcon, QPainter, QFont, QPen, QBrus
                             QClipboard)
 
 from __feature__ import snake_case, true_property
-
-
-
-
 
 #     ___  _       _ _                          __                      _      _     
 #    / _ \| |_    (_) |_ ___ _ __ ___  ___     / /  _ __ ___   ___   __| | ___| |___ 
@@ -919,7 +913,7 @@ class Main():
         klustr_dao = PostgreSQLKlustRDAO(credential)
         self.training_data = []
         self.knn = KNN(3, 3)
-        self.shape_analyzer = ShapeAnalyzer(None, 6)
+        self.shape_analyzer = ShapeAnalyzer(None, 10)
         self.source_data_widget = KlustrMain(self, klustr_dao)
         self.source_data_widget.window_title = 'Kluster App'
 
@@ -948,9 +942,8 @@ class Main():
     def set_k_constant(self, k_constant):
         self.knn.k_constant = k_constant
 
-
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     main = Main()
     main.source_data_widget.tabs.show()
-    sys.exit(app.exec_())    
+    sys.exit(app.exec_())
