@@ -84,7 +84,7 @@ class ShapeAnalyzer:
 
     # calcul de l'aire (tous les elements qui sont 0)
     def area(self, image):
-        return (image.shape[0] * image.shape[1]) - np.sum(image)
+        return np.sum(image)
 
     # calcul du périmètre de l'image
     def perimeter_array(self, image):

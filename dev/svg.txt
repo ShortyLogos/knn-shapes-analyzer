@@ -1,0 +1,6 @@
+SVG
+
+M - Moves pen to the point specified by the coordinate given immediately after the command.
+A - Draw an arc with the specified X and Y radius, ending at the point specified after command.
+L - Draw a straight line from one specified point to another.
+z - Close the path by drawing a straight line from path's last point to its first point.
