@@ -34,6 +34,10 @@ import sys
 import numpy
 import numpy as np
 
+import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+
 from knn import KNN
 from shapeanalyzer import ShapeAnalyzer
 from db_credential import PostgreSQLCredential
@@ -52,10 +56,6 @@ from PySide6.QtGui import  (QImage, QPixmap, QIcon, QPainter, QFont, QPen, QBrus
                             QClipboard)
 
 from __feature__ import snake_case, true_property
-
-import matplotlib.pyplot as plt
-from matplotlib.figure import Figure
-from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 
 
 
@@ -778,8 +778,8 @@ class KlustR3DModel(QWidget):
         self._azimuth += self._azimuth_inc
    
     def update_graphic(self):
-        width = 500
-        height = 500
+        width = 1000
+        height = 1000
         dpi = 100
         figure = Figure(figsize=(width / dpi, height / dpi), dpi=dpi)
         canvas = FigureCanvas(figure)
@@ -790,8 +790,8 @@ class KlustR3DModel(QWidget):
         #marker = self.markers[random(0, (len(self.markers)-1))]
         ax.scatter(self._controleur.knn.dataset[:, 0], self._controleur.knn.dataset[:,1], self._controleur.knn.dataset[:,2], marker='o', color='r')
 
-        # if self._knn.point_classified is not None:
-        #     ax.scatter(self._knn.point_classified.x, self._knn.point_classified.y, self._knn.point_classified.z, marker='p', color='') ###########################################
+        if self._point_analyse is not None:
+            ax.scatter(self._point_analyse[0], self._point_analyse[1], self._point_analyse[2], marker='p', color=(1,1,1), edgecolors=(0.8,0.8,0.8)) ###########################################
 
         ax.set_title(self.title)
         ax.set_xlabel(self.x_label)
@@ -860,6 +860,7 @@ class KlustRDataAnalyzeViewWidget(QWidget):
         view_data_layout.add_widget(self.single_test_widget.general_widget)
         view_data_layout.add_stretch()
         view_data_layout.add_widget(bouton_about)
+        view_data_widget.set_fixed_width(500)
 
         #--------- 3D General Layout ---------#
         view_graphic_widget = QWidget()
