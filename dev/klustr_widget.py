@@ -919,7 +919,7 @@ class Main():
         klustr_dao = PostgreSQLKlustRDAO(credential)
         self.training_data = []
         self.knn = KNN(3, 3)
-        self.shape_analyzer = ShapeAnalyzer(None, 6)
+        self.shape_analyzer = ShapeAnalyzer(None, 12)
         self.source_data_widget = KlustrMain(self, klustr_dao)
         self.source_data_widget.window_title = 'Kluster App'
 
@@ -936,7 +936,8 @@ class Main():
             self.training_data.append(point)
 
     def classify(self, chosen_image):
-        unclassified_point = self.shape_analyzer.analyze(chosen_image)
+        flipped_ndarray = np.logical_not(chosen_image).astype(int)
+        unclassified_point = self.shape_analyzer.analyze(flipped_ndarray)
         label = self.knn.classify(unclassified_point)
         return [unclassified_point, label]
 

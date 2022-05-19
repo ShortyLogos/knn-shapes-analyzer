@@ -2,7 +2,7 @@ import numpy as np
 import math
 
 class ShapeAnalyzer:
-    def __init__(self, image=None, outer_radius_buffer=None, perimeter_color=0):
+    def __init__(self, image=None, outer_radius_buffer=None, perimeter_color=1):
         self.__perimeter_color = perimeter_color
         self.__metrics_name = ["Pixels On Outer Radius", "Donut Ratio", "Complexity Index"]
         self.__image = image
@@ -66,7 +66,7 @@ class ShapeAnalyzer:
     # ratio entre le radius externe et interne
     def donut_ratio(self, image):
         distances = self.centroid_distances(image)
-        inner_radius = np.min(distances)
+        inner_radius = np.min(distances[distances != 0])
         outer_radius = np.max(distances)
         return inner_radius / outer_radius
 
@@ -133,13 +133,5 @@ class ShapeAnalyzer:
         dist = np.sqrt((r-center[1])**2 + (c-center[0])**2)
         circle = (dist <= radius).astype(np.uint8)
         image[:, :] = np.logical_or(image[:, :], circle)
-        
-    ## POUR DES TESTS --- A EFFACER!!!!!
-    def create_image(self, size):
-        return np.zeros((size[1], size[0]), dtype=np.uint8)
 
-    def draw_rectangle(self, image, top_left, bottom_right):
-        top_left = (max(0, top_left[0]), max(0, top_left[1]))
-        bottom_right = (min(image.shape[1], bottom_right[0]), min(image.shape[0], bottom_right[1]))
-        image[top_left[1]:bottom_right[1], top_left[0]:bottom_right[0]] = 1
 

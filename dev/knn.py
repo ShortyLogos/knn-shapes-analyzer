@@ -45,7 +45,6 @@ class KNN:
 
     def classify(self, unclassified_point):
         neighbours = self.get_k_neighbours(unclassified_point)
-        print(neighbours)
         tags = self.get_k_neighbours_tags(neighbours)
         tag = self.get_most_common_tag(tags)
         return tag
