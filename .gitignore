@@ -1,0 +1,10 @@
+# Default ignored files
+/shelf/
+/workspace.xml
+/.vscode
+/.pycache
+/.idea
+.vscode
+.pycache
+.idea
+dev/__pycache__/

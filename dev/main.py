@@ -39,6 +39,7 @@ class Main():
             self.training_data.append(point)
 
     def classify(self, chosen_image):
+        flipped_ndarray = np.logical_not(chosen_image).astype(int)
         unclassified_point = self.shape_analyzer.analyze(chosen_image)
         label = self.knn.classify(unclassified_point)
         return [unclassified_point, label]
@@ -50,6 +51,7 @@ class Main():
     # à utiliser avec le scrollbar de knn
     def set_k_constant(self, k_constant):
         self.knn.k_constant = k_constant
+
 class KlustrMain(QWidget):
     def __init__(self, controleur, klustr_dao, parent=None):
         super().__init__(parent)
@@ -58,6 +60,7 @@ class KlustrMain(QWidget):
         self.tab2 = KlustRDataAnalyzeViewWidget(controleur, klustr_dao)
         self.tabs.add_tab(self.tab1, "Tab 1")
         self.tabs.add_tab(self.tab2, "Tab 2")
+
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     main = Main()

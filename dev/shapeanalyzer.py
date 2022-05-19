@@ -2,7 +2,7 @@ import numpy as np
 import math
 
 class ShapeAnalyzer:
-    def __init__(self, image=None, outer_radius_buffer=None, perimeter_color=0):
+    def __init__(self, image=None, outer_radius_buffer=None, perimeter_color=1):
         self.__perimeter_color = perimeter_color
         self.__metrics_name = ["Pixels On Outer Radius", "Donut Ratio", "Complexity Index"]
         self.__image = image
