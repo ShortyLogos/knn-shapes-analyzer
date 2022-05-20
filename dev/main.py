@@ -40,7 +40,7 @@ class Main():
 
     def classify(self, chosen_image):
         flipped_ndarray = np.logical_not(chosen_image).astype(int)
-        unclassified_point = self.shape_analyzer.analyze(chosen_image)
+        unclassified_point = self.shape_analyzer.analyze(flipped_ndarray)
         label = self.knn.classify(unclassified_point)
         return [unclassified_point, label]
 
