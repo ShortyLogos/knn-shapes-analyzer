@@ -28,7 +28,7 @@ class KlustR3DModel(QWidget):
 
         self._timer = QtCore.QTimer()
         self._timer.timeout.connect(self._rotate)
-        self._timer.start(1000)
+        self._timer.start(500)
 
     @property
     def point_analyse(self):
