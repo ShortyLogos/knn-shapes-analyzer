@@ -78,8 +78,9 @@ class KlustR3DModel(QWidget):
 
 class KlustRKnnParamsWidget(QWidget):
     value_changed = Signal(str)
-    def __init__(self):
+    def __init__(self,parent):
         super().__init__()
+        self._controleur=parent
         self.knn = "knn"
         self.dist = "dist"
         self.general_widget = QGroupBox("Knn parameters")
@@ -116,8 +117,16 @@ class KlustRKnnParamsWidget(QWidget):
     @Slot()
     def __update_distance(self):
         self.__dist_label.set_text("Max dist = "+str(self.__dist_scrollbar.value/10))
+        self.distance= self.__dist_scrollbar.value/100
+        self.__dist_scrollbar.valueChanged.connect(self.__update_distance_main())
+
     @Slot()
     def __update_knn_param(self):
         #######ici je dois set self.__k_scrollbar.set_range(1,max_range) avec squareroot(image count)/2 comment get image count?
          self.__k_label.set_text("k = "+str(self.__k_scrollbar.value))
+         self.__k_scrollbar.valueChanged.connect(self.__update_knn_params)
 
+    def __update_knn_params(self):
+        self._controleur.set_k_constant( self.__k_scrollbar.value)
+    def __update_distance_main(self):
+        self._controleur.set_max_distance(self.distance)
