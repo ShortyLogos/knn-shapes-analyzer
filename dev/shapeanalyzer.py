@@ -1,6 +1,7 @@
 import numpy as np
 import math
 
+
 class ShapeAnalyzer:
     def __init__(self, image=None, outer_radius_buffer=None, perimeter_color=1):
         self.__perimeter_color = perimeter_color
@@ -30,7 +31,7 @@ class ShapeAnalyzer:
     @property
     def area_shape(self):
         return self.__area_shape
-    
+
     @area_shape.setter
     def area_shape(self, value):
         self.__area_shape = value
@@ -38,7 +39,7 @@ class ShapeAnalyzer:
     @property
     def perimeter_shape(self):
         return self.__perimeter_shape
-    
+
     @perimeter_shape.setter
     def perimeter_shape(self, value):
         self.__perimeter_shape = value
@@ -74,7 +75,8 @@ class ShapeAnalyzer:
     def complexity_index(self, image):
         # mesure normalisée un peu au-dessus de 1, devoir réviser la façon dont on calcul
         # le périmètre avant la remise. Il est brouillé.
-        return ((4 * math.pi * self.area(image))/(self.perimeter(image) ** 2))
+        return ((4 * math.pi * self.area(image)) / (self.perimeter(image) ** 2))
+
     ################################################################################################
 
     # calcul du centroïde
@@ -86,27 +88,24 @@ class ShapeAnalyzer:
     def area(self, image):
         return np.sum(image)
 
-    # calcul du périmètre de l'image
-    def perimeter_array(self, image):
-        temp = image.copy()
-        for y in range(image.shape[0] - 1):
-            for x in range(image.shape[1] - 1):
-                if temp[x, y]:
-                    temp[x, y] = self.is_perimeter(image, (x, y))
-        return temp
-
     def perimeter(self, image):
         return np.sum(self.perimeter_array(image))
 
-    # vérification d'un pixel sur le périmètre
-    def is_perimeter(self, image, index_pixel):
-        x, y = index_pixel
-        left = max(0, x - 1)
-        right = max(0, x + 2)
-        bottom = max(0, y - 1)
-        top = max(0, y + 2)
-        sample = image[left:right, bottom:top]
-        return True if not np.sum(sample) == 9 else False
+    def perimeter_array(self, image):
+        result = image.copy()
+        d0 = image[0:-2, 0:-2]
+        d1 = image[1:-1, 0:-2]
+        d2 = image[2:, 0:-2]
+        d3 = image[0:-2, 1:-1]
+        d4 = image[1:-1, 1:-1]
+        d5 = image[2:, 1:-1]
+        d6 = image[0:-2, 2:]
+        d7 = image[1:-1, 2:]
+        d8 = image[2:, 2:]
+        r = result[1:-1, 1:-1]
+        r[:] = ((d0 + d1 + d2 + d3 + d4 + d5 + d6 + d7 + d8) != 9).astype(np.uint8) == (
+                    (d0 + d1 + d2 + d3 + d4 + d5 + d6 + d7 + d8) >= 1).astype(np.uint8)
+        return result
 
     # tableau des coordonnées de tous le périmetre
     def perimeter_coordinates(self, image):
@@ -128,8 +127,8 @@ class ShapeAnalyzer:
     def calculate_distance(self, centroide, perimetre):
         return np.sum((centroide - perimetre) ** 2, axis=1) ** 0.5
 
-    def draw_circle(self,image, center, radius):
+    def draw_circle(self, image, center, radius):
         c, r = np.meshgrid(np.arange(image.shape[1]), np.arange(image.shape[0]))
-        dist = np.sqrt((r-center[1])**2 + (c-center[0])**2)
+        dist = np.sqrt((r - center[1]) ** 2 + (c - center[0]) ** 2)
         circle = (dist <= radius).astype(np.uint8)
         image[:, :] = np.logical_or(image[:, :], circle)
