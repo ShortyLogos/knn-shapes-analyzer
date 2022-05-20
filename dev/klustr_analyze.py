@@ -44,7 +44,7 @@ class KlustRDataAnalyzeViewWidget(QWidget):
         self.dataset_widget.dataset_selected.connect(self._update_from_selection)
 
         #--------- Knn params ---------#
-        self.knn_parameters_widget = KlustRKnnParamsWidget()
+        self.knn_parameters_widget = KlustRKnnParamsWidget(self._controleur)
 
         #--------- Single_test ---------#
         self.single_test_widget = KlustRSingleAnalyzeModel()
@@ -216,5 +216,3 @@ class KlustRSingleAnalyzeModel(QWidget):
         else:
             image = ndarray_from_qimage_argb32(self.chosen_image)
             self.classify.emit(image)
-
-
