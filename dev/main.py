@@ -7,13 +7,13 @@
 import sys
 import numpy as np
 from PySide6.QtWidgets import QWidget, QTabWidget, QApplication
-from dev.db_credential import PostgreSQLCredential
-from dev.klustr_dao import PostgreSQLKlustRDAO
-from dev.klustr_utils import qimage_argb32_from_png_decoding, ndarray_from_qimage_argb32
-from dev.klustr_widget import KlustRDataSourceViewWidget
-from dev.klustr_analyze import KlustRDataAnalyzeViewWidget
-from dev.knn import KNN
-from dev.shapeanalyzer import ShapeAnalyzer
+from db_credential import PostgreSQLCredential
+from klustr_dao import PostgreSQLKlustRDAO
+from klustr_utils import qimage_argb32_from_png_decoding, ndarray_from_qimage_argb32
+from klustr_widget import KlustRDataSourceViewWidget
+from klustr_analyze import KlustRDataAnalyzeViewWidget
+from knn import KNN
+from shapeanalyzer import ShapeAnalyzer
 
 
 class Main():

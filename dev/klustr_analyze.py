@@ -11,8 +11,8 @@ from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QWidget, QLabel, QGridLayout, QMessageBox, QPushButton, QVBoxLayout, QHBoxLayout, \
     QGroupBox, QComboBox, QFormLayout
 
-from dev.klustr_model3D import KlustRKnnParamsWidget, KlustR3DModel
-from dev.klustr_utils import qimage_argb32_from_png_decoding, ndarray_from_qimage_argb32
+from klustr_model3D import KlustRKnnParamsWidget, KlustR3DModel
+from klustr_utils import qimage_argb32_from_png_decoding, ndarray_from_qimage_argb32
 from __feature__ import snake_case, true_property
 
 
