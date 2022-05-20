@@ -1,3 +1,4 @@
+import numpy as np
 from PySide6 import QtCore, QtGui
 from PySide6.QtCore import Signal, Slot
 from PySide6.QtGui import QImage, Qt
@@ -14,11 +15,12 @@ class KlustR3DModel(QWidget):
         self._controleur = controleur
         self._point_analyse = None
 
-        self.title = title
-        self.x_label = xLabel
-        self.y_label = yLabel
-        self.z_label = zLabel
+        self._title = title
+        self._x_label = xLabel
+        self._y_label = yLabel
+        self._z_label = zLabel
         self.markers = ('o', '.', 'v', '2', '8', 's', 'X', 'D', '*', 'H')
+        self.couleurs =np.array([(1, 1, 0),(1, 0, 1),(1, 0, 0),(.2, .2, .2),(.5, .2, .2),(.2, .5, .2),(.2, .5, .2),(.7, 1, .7),(.7, 5, .7),(.5, 1, .7),(.7, 1, .5)])
 
         self._elevation = 30
         self._azimuth = 45
@@ -38,10 +40,10 @@ class KlustR3DModel(QWidget):
 
     @Slot()
     def _rotate(self):
-        self.update_graphic()
+        self._update_graphic()
         self._azimuth += self._azimuth_inc
 
-    def update_graphic(self):
+    def _update_graphic(self):
         width = 1000
         height = 1000
         dpi = 100
@@ -49,20 +51,20 @@ class KlustR3DModel(QWidget):
         canvas = FigureCanvas(figure)
         ax = figure.add_subplot(111, projection='3d')
         ax.set_proj_type('persp')
-
         # color = rgb(random(0,1), random(0,1), random(0,1))
         # marker = self.markers[random(0, (len(self.markers)-1))]
+        index =self._controleur.knn.dataset[:,-1].astype(int)
         ax.scatter(self._controleur.knn.dataset[:, 0], self._controleur.knn.dataset[:, 1],
-                   self._controleur.knn.dataset[:, 2], marker='o', color='r')
+                   self._controleur.knn.dataset[:, 2], marker='o', color=self.couleurs[(index-1)])
 
         if self._point_analyse is not None:
             ax.scatter(self._point_analyse[0], self._point_analyse[1], self._point_analyse[2], marker='p',
                        color=(1, 1, 1), edgecolors=(0.8, 0.8, 0.8))  ###########################################
 
-        ax.set_title(self.title)
-        ax.set_xlabel(self.x_label)
-        ax.set_ylabel(self.y_label)
-        ax.set_zlabel(self.z_label)
+        ax.set_title(self._title)
+        ax.set_xlabel(self._x_label)
+        ax.set_ylabel(self._y_label)
+        ax.set_zlabel(self._z_label)
 
         ax.view_init(self._elevation, self._azimuth)
 
@@ -113,7 +115,6 @@ class KlustRKnnParamsWidget(QWidget):
 
     @Slot()
     def __update_distance(self):
-
         self.__dist_label.set_text("Max dist = "+str(self.__dist_scrollbar.value/10))
     @Slot()
     def __update_knn_param(self):
