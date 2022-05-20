@@ -20,7 +20,7 @@ class KlustR3DModel(QWidget):
         self._y_label = yLabel
         self._z_label = zLabel
         self.markers = ('o', '.', 'v', '2', '8', 's', 'X', 'D', '*', 'H')
-        self.couleurs =np.array([(1, 1, 0),(1, 0, 1),(1, 0, 0),(.2, .2, .2),(.5, .2, .2),(.2, .5, .2),(.2, .5, .2),(.7, 1, .7),(.7, 5, .7),(.5, 1, .7),(.7, 1, .5)])
+        self.couleurs =np.array([(1, 1, 0),(1, 0, 1),(1, 0, 0),(.2, .2, .2),(.5, .2, .2),(.2, .5, .2),(.2, .5, .2),(.7, 1, .7),(.7, .5, .7),(.5, 1, .7),(.7, 1, .5)])
 
         self._elevation = 30
         self._azimuth = 45
