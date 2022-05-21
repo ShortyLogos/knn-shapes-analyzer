@@ -44,13 +44,8 @@ class ShapeAnalyzer:
     def perimeter_shape(self, value):
         self.__perimeter_shape = value
 
-    @property
-    def centroid_shape(self):
-        pass
-
     def analyze(self, image):
         metrics = [self.pixels_on_perimeter(image), self.donut_ratio(image), self.complexity_index(image)]
-        # metrics = ['{0:.3g}'.format(self.pixels_on_perimeter(image)), '{0:.3g}'.format(self.donut_ratio(image)), '{0:.3g}'.format(self.complexity_index(image))]
         return metrics
 
     #### TROIS MÉTRIQUES ####
@@ -58,7 +53,6 @@ class ShapeAnalyzer:
     def pixels_on_perimeter(self, image):
         distances = self.centroid_distances(image)
         radius = np.max(distances)
-        # condition_sommet = distances[np.where((radius - self.__outer_radius_buffer <= distances) & (distances <= radius + self.__outer_radius_buffer))]
         condition_sommet = distances[radius - self.__outer_radius_buffer <= distances]
         # après le calcul, on normalise les données et on les retourne
         return np.size(condition_sommet) / (np.pi * radius ** 2 - np.pi * (radius - self.__outer_radius_buffer) ** 2)
@@ -73,9 +67,7 @@ class ShapeAnalyzer:
 
     # indice de complexité
     def complexity_index(self, image):
-        # mesure normalisée un peu au-dessus de 1, devoir réviser la façon dont on calcul
-        # le périmètre avant la remise. Il est brouillé.
-        return ((4 * math.pi * self.area(image)) / (self.perimeter(image) ** 2))
+        return (4 * math.pi * self.area(image)) / (self.perimeter(image) ** 2)
 
     ################################################################################################
 
@@ -109,9 +101,9 @@ class ShapeAnalyzer:
 
     # tableau des coordonnées de tous le périmetre
     def perimeter_coordinates(self, image):
-        perimetre = self.perimeter_array(image)
+        perimeter = self.perimeter_array(image)
         c, r = self.image_coordinates(image)
-        match = perimetre == self.__perimeter_color
+        match = perimeter == self.__perimeter_color
         match_col = c[match]
         match_row = r[match]
         return np.stack((match_col, match_row), axis=1)
@@ -124,8 +116,8 @@ class ShapeAnalyzer:
         return self.calculate_distance(self.centroid(image).astype(image.dtype), self.perimeter_coordinates(image))
 
     # distance entre deux points
-    def calculate_distance(self, centroide, perimetre):
-        return np.sum((centroide - perimetre) ** 2, axis=1) ** 0.5
+    def calculate_distance(self, centroid, perimeter):
+        return np.sum((centroid - perimeter) ** 2, axis=1) ** 0.5
 
     def draw_circle(self, image, center, radius):
         c, r = np.meshgrid(np.arange(image.shape[1]), np.arange(image.shape[0]))
