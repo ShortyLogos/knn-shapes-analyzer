@@ -32,14 +32,10 @@
 import sys
 import numpy as np
 
-from matplotlib.figure import Figure
-from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 
-from knn import KNN
-from shapeanalyzer import ShapeAnalyzer
-from db_credential import PostgreSQLCredential
-from klustr_dao import PostgreSQLKlustRDAO
-from klustr_utils import qimage_argb32_from_png_decoding, ndarray_from_qimage_argb32
+
+
+from klustr_utils import qimage_argb32_from_png_decoding
 
 from PySide6 import QtCore, QtGui, QtWidgets
 from PySide6.QtCore import Qt, QSize, QTimer
