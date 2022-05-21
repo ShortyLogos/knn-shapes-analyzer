@@ -19,7 +19,6 @@ class KlustR3DModel(QWidget):
         self._x_label = xLabel
         self._y_label = yLabel
         self._z_label = zLabel
-        self.markers = ('o', '.', 'v', '2', '8', 's', 'X', 'D', '*', 'H')
         self.couleurs =np.array([(1, 1, 0),(1, 0, 1),(1, 0, 0),(.2, .2, .2),(.5, .2, .2),(.2, .5, .2),(.2, .5, .2),(.7, 1, .7),(.7, .5, .7),(.5, 1, .7),(.7, 1, .5)])
 
         self._elevation = 30
@@ -51,15 +50,13 @@ class KlustR3DModel(QWidget):
         canvas = FigureCanvas(figure)
         ax = figure.add_subplot(111, projection='3d')
         ax.set_proj_type('persp')
-        # color = rgb(random(0,1), random(0,1), random(0,1))
-        # marker = self.markers[random(0, (len(self.markers)-1))]
-        index =self._controleur.knn.dataset[:,-1].astype(int)
+        index =(self._controleur.knn.dataset[:,-1].astype(int))%len(self.couleurs)
         ax.scatter(self._controleur.knn.dataset[:, 0], self._controleur.knn.dataset[:, 1],
-                   self._controleur.knn.dataset[:, 2], marker='o', color=self.couleurs[(index-1)])
+                   self._controleur.knn.dataset[:, 2], marker='o', color=self.couleurs[index])
 
         if self._point_analyse is not None:
-            ax.scatter(self._point_analyse[0], self._point_analyse[1], self._point_analyse[2], marker='p',
-                       color=(1, 1, 1), edgecolors=(0.8, 0.8, 0.8))  ###########################################
+            ax.scatter(self._point_analyse[0], self._point_analyse[1], self._point_analyse[2], marker='v', s=200,
+                       color=(0, 0, 0)) 
 
         ax.set_title(self._title)
         ax.set_xlabel(self._x_label)
