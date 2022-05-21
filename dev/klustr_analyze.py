@@ -9,9 +9,9 @@ from PySide6 import QtCore
 from PySide6.QtCore import Slot, Signal, Qt
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QWidget, QLabel, QGridLayout, QMessageBox, QPushButton, QVBoxLayout, QHBoxLayout, \
-    QGroupBox, QComboBox, QFormLayout
+    QGroupBox, QComboBox, QFormLayout, QScrollBar
 
-from klustr_model3D import KlustRKnnParamsWidget, KlustR3DModel
+from klustr_model3D import KlustR3DModel
 from klustr_utils import qimage_argb32_from_png_decoding, ndarray_from_qimage_argb32
 from __feature__ import snake_case, true_property
 
@@ -93,10 +93,10 @@ class KlustRDataAnalyzeViewWidget(QWidget):
         self._controleur.new_dataset(dataset_train)
 
     @Slot()
-    def _classify(self, chosen_image): #type ndarray
+    def _classify(self, chosen_image):
         knn = self.knn_parameters_widget.knn
         dist = self.knn_parameters_widget.dist
-        point, label = self._controleur.classify(chosen_image) ####################################################################
+        point, label = self._controleur.classify(chosen_image)
         self.graphic_widget.point_analyse = point
         self.single_test_widget.update_text(label)
 
@@ -216,3 +216,60 @@ class KlustRSingleAnalyzeModel(QWidget):
         else:
             image = ndarray_from_qimage_argb32(self.chosen_image)
             self.classify.emit(image)
+
+
+
+class KlustRKnnParamsWidget(QWidget):
+    value_changed = Signal(str)
+    def __init__(self,parent):
+        super().__init__()
+        self._controleur=parent
+        self.knn = "knn"
+        self.dist = "dist"
+        self.general_widget = QGroupBox("Knn parameters")
+        general_layout = QVBoxLayout(self.general_widget)
+
+        k_widget = QWidget()
+        k_layout = QHBoxLayout(k_widget)
+        self.__k_label = QLabel("K = 1")
+        k_layout.add_widget(self.__k_label)
+        self.__k_scrollbar = QScrollBar()
+        self.__k_scrollbar.orientation = Qt.Horizontal
+        self.__k_scrollbar.set_range(1,5)
+        self.__k_scrollbar.value=1
+        k_layout.add_widget(self.__k_scrollbar)
+        general_layout.add_widget(k_widget)
+        self.__k_scrollbar.valueChanged.connect(self.__update_knn_param)
+
+
+        #K minimum toujours 1, maximum c'est racine carré du nbr de pop / nbr categorie et le centre est / 2 ou quelque chose du genre
+        #dist c'est un hypothénuse d'une genre de normalisation entre tes n axes de ton knn
+
+        dist_widget = QWidget()
+        dist_layout = QHBoxLayout(dist_widget)
+        self.__dist_label = QLabel("Max dist = 0.3")
+        dist_layout.add_widget(self.__dist_label)
+        self.__dist_scrollbar = QScrollBar()
+        self.__dist_scrollbar.orientation = Qt.Horizontal
+        self.__dist_scrollbar.set_range(1, 9)
+        self.__dist_scrollbar.value = 3
+        dist_layout.add_widget(self.__dist_scrollbar)
+        general_layout.add_widget(dist_widget)
+        self.__dist_scrollbar.valueChanged.connect(self.__update_distance)
+
+    @Slot()
+    def __update_distance(self):
+        self.__dist_label.set_text("Max dist = "+str(self.__dist_scrollbar.value/10))
+        self.distance= self.__dist_scrollbar.value/100
+        self.__dist_scrollbar.valueChanged.connect(self.__update_distance_main())
+
+    @Slot()
+    def __update_knn_param(self):
+        #######ici je dois set self.__k_scrollbar.set_range(1,max_range) avec squareroot(image count)/2 comment get image count?
+         self.__k_label.set_text("k = "+str(self.__k_scrollbar.value))
+         self.__k_scrollbar.valueChanged.connect(self.__update_knn_params)
+
+    def __update_knn_params(self):
+        self._controleur.set_k_constant( self.__k_scrollbar.value)
+    def __update_distance_main(self):
+        self._controleur.set_max_distance(self.distance)
