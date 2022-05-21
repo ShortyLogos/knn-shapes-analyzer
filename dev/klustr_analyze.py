@@ -228,23 +228,17 @@ class KlustRKnnParamsWidget(QWidget):
         self.dist = "dist"
         self.general_widget = QGroupBox("Knn parameters")
         general_layout = QVBoxLayout(self.general_widget)
-
         k_widget = QWidget()
         k_layout = QHBoxLayout(k_widget)
-        self.__k_label = QLabel("K = 1")
+        self.__k_label = QLabel("K = 3")
         k_layout.add_widget(self.__k_label)
         self.__k_scrollbar = QScrollBar()
         self.__k_scrollbar.orientation = Qt.Horizontal
         self.__k_scrollbar.set_range(1,5)
-        self.__k_scrollbar.value=1
+        self.__k_scrollbar.value=3
         k_layout.add_widget(self.__k_scrollbar)
         general_layout.add_widget(k_widget)
         self.__k_scrollbar.valueChanged.connect(self.__update_knn_param)
-
-
-        #K minimum toujours 1, maximum c'est racine carré du nbr de pop / nbr categorie et le centre est / 2 ou quelque chose du genre
-        #dist c'est un hypothénuse d'une genre de normalisation entre tes n axes de ton knn
-
         dist_widget = QWidget()
         dist_layout = QHBoxLayout(dist_widget)
         self.__dist_label = QLabel("Max dist = 0.3")
@@ -259,13 +253,12 @@ class KlustRKnnParamsWidget(QWidget):
 
     @Slot()
     def __update_distance(self):
-        self.__dist_label.set_text("Max dist = "+str(self.__dist_scrollbar.value/10))
-        self.distance= self.__dist_scrollbar.value/100
+        self.distance = self.__dist_scrollbar.value / 10
+        self.__dist_label.set_text("Max dist = "+str(self.distance))
         self.__dist_scrollbar.valueChanged.connect(self.__update_distance_main())
 
     @Slot()
     def __update_knn_param(self):
-        #######ici je dois set self.__k_scrollbar.set_range(1,max_range) avec squareroot(image count)/2 comment get image count?
          self.__k_label.set_text("k = "+str(self.__k_scrollbar.value))
          self.__k_scrollbar.valueChanged.connect(self.__update_knn_params)
 
