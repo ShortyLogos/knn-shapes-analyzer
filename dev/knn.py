@@ -20,6 +20,14 @@ class KNN:
         self.__distance_max = distance
 
     @property
+    def k_tags(self):
+        return self.__k_tags
+
+    @k_tags.setter
+    def k_tags(self, value):
+        self.__k_tags = value
+
+    @property
     def dataset(self):
         return self.__dataset
 
@@ -84,6 +92,7 @@ class KNN:
 
     # À ajouter au contrôleur
     def new_dataset(self, data):
+        self.__k_tags = np.empty(0, dtype=np.str_)
         self.clear_dataset()
         for element in data:
             metrics, tag = element
