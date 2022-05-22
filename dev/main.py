@@ -34,13 +34,15 @@ class Main():
             img_temp = qimage_argb32_from_png_decoding(image[6])
             ndarray = ndarray_from_qimage_argb32(img_temp)
             flipped_ndarray = np.logical_not(ndarray).astype(int)
-            point = self.shape_analyzer.analyze(flipped_ndarray)
+            self.shape_analyzer.image = flipped_ndarray
+            point = self.shape_analyzer.analyze()
             self.knn.add_training_point(point, label)
             self.training_data.append(point)
 
     def classify(self, chosen_image):
         flipped_ndarray = np.logical_not(chosen_image).astype(int)
-        unclassified_point = self.shape_analyzer.analyze(flipped_ndarray)
+        self.shape_analyzer.image = flipped_ndarray
+        unclassified_point = self.shape_analyzer.analyze()
         label = self.knn.classify(unclassified_point)
         return [unclassified_point, label]
 
