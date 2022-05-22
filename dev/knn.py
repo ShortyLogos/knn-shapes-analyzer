@@ -45,7 +45,6 @@ class KNN:
 
     def classify(self, unclassified_point):
         neighbours = self.get_k_neighbours(unclassified_point)
-        print(neighbours)
         tags = self.get_k_neighbours_tags(neighbours)
         tag = self.get_most_common_tag(tags)
         return tag
@@ -60,7 +59,10 @@ class KNN:
         return tags_unique[position]
 
     def check_distance_neighbours(self, neighbours):
-        return neighbours[neighbours[:, 0] <= self.__distance_max]
+        neighbours2 = neighbours[neighbours[:, 0] <= self.__distance_max]
+        if np.size(neighbours2) == 0:
+            neighbours2 = neighbours[neighbours[:, 0] <= self.__distance_max + 0.5]
+        return neighbours2
 
     # Retourne le tableau des k voisins
     def get_k_neighbours(self, unclassified_point):
