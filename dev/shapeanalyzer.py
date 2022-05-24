@@ -104,8 +104,7 @@ class ShapeAnalyzer:
         d7 = self.__image[1:-1, 2:]
         d8 = self.__image[2:, 2:]
         r = result[1:-1, 1:-1]
-        r[:] = ((d0 + d1 + d2 + d3 + d4 + d5 + d6 + d7 + d8) != 9).astype(np.uint8) == (
-                    (d0 + d1 + d2 + d3 + d4 + d5 + d6 + d7 + d8) >= 1).astype(np.uint8)
+        r[:] = np.logical_and((d0 + d1 + d2 + d3 + d4 + d5 + d6 + d7 + d8) != 9, d4 != 0).astype(np.uint8)
         return result
 
     # tableau des coordonnées de tous le périmetre
@@ -114,7 +113,7 @@ class ShapeAnalyzer:
         match = self.perimeter_array() == self.__perimeter_color
         match_col = c[match]
         match_row = r[match]
-        return np.stack((match_col, match_row), axis=1)
+        return np.stack((match_row, match_col), axis=1)
 
     # fonction utilitaire pour générer les coordonnées de l'image
     def image_coordinates(self):
@@ -125,5 +124,5 @@ class ShapeAnalyzer:
 
     # distance entre deux points
     def calculate_distance(self, centroid, perimeter):
-        return np.sum((centroid - perimeter) ** 2, axis=1) ** 0.5
+        return np.sum((perimeter - centroid) ** 2, axis=1) ** 0.5
 
