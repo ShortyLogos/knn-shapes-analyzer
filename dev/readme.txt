@@ -1,4 +1,4 @@
-Traval présenté par:
+Travail présenté par:
 - Jean-Christophe Caron
 - Samuel Horvath
 - Déric Marchand
@@ -31,3 +31,4 @@ Un effort d'abstraction a été fait pour ces points :
 Le Knn
 Le shapeanalyzer
 Finalement, l’ensemble de données le plus complexe que nous avons été capable de résoudre est:
+Zoo Large
