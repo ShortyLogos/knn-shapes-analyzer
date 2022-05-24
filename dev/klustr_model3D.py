@@ -5,6 +5,7 @@ from PySide6.QtGui import QImage
 from PySide6.QtWidgets import QWidget, QLabel
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
+import matplotlib.pyplot as plt
 from __feature__ import snake_case, true_property
 
 
@@ -14,17 +15,14 @@ class KlustR3DModel(QWidget):
         self.general_widget = QLabel()
         self._controleur = controleur
         self._point_analyse = None
-
         self._title = title
         self._x_label = xLabel
         self._y_label = yLabel
         self._z_label = zLabel
         self.couleurs =np.array([(1, 1, 0),(1, 0, 1),(1, 0, 0),(.2, .2, .2),(.5, .2, .2),(.2, .5, .2),(.2, .5, .2),(.7, 1, .7),(.7, .5, .7),(.5, 1, .7),(.7, 1, .5)])
-
         self._elevation = 30
         self._azimuth = 45
         self._azimuth_inc = 2.5
-
         self._timer = QtCore.QTimer()
         self._timer.timeout.connect(self._rotate)
         self._timer.start(500)
@@ -47,22 +45,20 @@ class KlustR3DModel(QWidget):
         height = 1000
         dpi = 100
         figure = Figure(figsize=(width / dpi, height / dpi), dpi=dpi)
+        plt.style.use('dark_background')
         canvas = FigureCanvas(figure)
         ax = figure.add_subplot(111, projection='3d')
         ax.set_proj_type('persp')
         index =(self._controleur.knn.dataset[:,-1].astype(int))%len(self.couleurs)
         ax.scatter(self._controleur.knn.dataset[:, 0], self._controleur.knn.dataset[:, 1],
                    self._controleur.knn.dataset[:, 2], marker='o', color=self.couleurs[index])
-
         if self._point_analyse is not None:
             ax.scatter(self._point_analyse[0], self._point_analyse[1], self._point_analyse[2], marker='v', s=200,
-                       color=(0, 0, 0)) 
-
-        ax.set_title(self._title)
+                       color=(0, 0, 0))
         ax.set_xlabel(self._x_label)
         ax.set_ylabel(self._y_label)
         ax.set_zlabel(self._z_label)
-
+        ax.set_title(self._title)
         ax.view_init(self._elevation, self._azimuth)
 
         canvas.draw()
