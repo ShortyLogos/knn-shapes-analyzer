@@ -5,6 +5,7 @@
 # |_|\_\ |_|  \__,_| |___/  \__| |_| \_\ |____/   \__,_|  \__|  \__,_| /_/   \_\ |_| |_|  \__,_| |_|  \__, | /___|  \___|    \_/    |_|  \___|   \_/\_/      \_/\_/    |_|  \__,_|  \__, |  \___|  \__|
 #                                                                                                     |___/                                                                         |___/
 import numpy as np
+import codecs
 from PySide6 import QtCore
 from PySide6.QtCore import Slot, Signal, Qt
 from PySide6.QtGui import QPixmap
@@ -81,8 +82,9 @@ class KlustRDataAnalyzeViewWidget(QWidget):
     def __show_dialog(self):
         msgBox = QMessageBox()
         with open("readme.txt") as readme:
-            contents = readme.read()
-            msgBox.text=(contents)
+            file = codecs.open("readme.txt", "r", "utf8")
+            content = file.read()
+            msgBox.text = (content)
         msgBox.exec()
 
     @Slot()
