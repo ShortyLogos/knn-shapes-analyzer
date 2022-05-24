@@ -12,12 +12,11 @@ entre ce nouveau point analysé et nos points de "training" pour déterminer sa 
 
 Nos 3 descripteurs de forme sont :
 
-1-Le ratio "beigne":  le ratio du rayon entre le centroide et le pixel le plus de celui-ci le rayon de celui le plus loin.
+1-Le ratio "beigne":  le ratio du rayon entre le centroide et le pixel le plus petit de celui-ci et le rayon de celui le plus loin.
 
-2-Le nombre de pixel sur le périmetre:  on prend le centroide et le pixel le plus loin de celui-ci sur la forme pour
-créer trouver le rayon du cercle. On compte ensuite tous les pixel qui font parti de ce cerle.
+2-Le nombre de pixel sur le périmetre:  on prend la distance entre le centroide et le pixel le plus loin sur la forme pour ensuite compter tous les pixel qui en font parti.
 
-3-L'index de complexité : c'est l'aire de la forme divisé par son périmetre
+3-L'index de complexité : c'est l'aire de la forme divisé par son périmetre à la puissance de deux.
 
 Plus précisément, ce laboratoire permet de mettre en pratique les notions de :
 Le principe d'encapsulation et de modularité du code
